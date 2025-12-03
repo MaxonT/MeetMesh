@@ -10,6 +10,7 @@
 
 const prisma = require('./prismaClient');
 const jsonDb = require('../polls'); // Original JSON DB module
+const { hash32 } = require('../utils/hash');
 
 /**
  * Create a new poll
@@ -28,14 +29,6 @@ async function createPoll(meta) {
     }
     
     // Generate unique ID
-    const hash32 = (str) => {
-      let h = 2166136261 >>> 0;
-      for (let i = 0; i < str.length; i++) { 
-        h ^= str.charCodeAt(i); 
-        h = Math.imul(h, 16777619); 
-      }
-      return (h >>> 0).toString(36);
-    };
     const id = 'mm_' + hash32(JSON.stringify(meta) + Date.now());
     
     const poll = await prisma.poll.create({

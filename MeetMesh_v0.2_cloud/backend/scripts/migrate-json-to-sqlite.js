@@ -110,12 +110,10 @@ async function migrate() {
 
 // Run migration
 migrate()
-  .then(() => {
-    prisma.$disconnect();
-    process.exit(0);
-  })
   .catch((error) => {
     console.error('Migration failed:', error);
+    process.exitCode = 1;
+  })
+  .finally(() => {
     prisma.$disconnect();
-    process.exit(1);
   });

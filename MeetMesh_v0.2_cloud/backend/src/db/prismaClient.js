@@ -12,7 +12,7 @@ try {
   if (process.env.DATABASE_URL) {
     const { PrismaClient } = require('@prisma/client');
     prisma = new PrismaClient();
-    console.log('Prisma client initialized with DATABASE_URL:', process.env.DATABASE_URL);
+    console.log('Prisma client initialized successfully');
   } else {
     console.log('DATABASE_URL not set, using JSON DB fallback');
   }

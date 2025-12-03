@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const { hash32 } = require('./utils/hash');
 
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
@@ -10,12 +11,6 @@ function ensureDb() {
 }
 function readDb() { ensureDb(); return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8')); }
 function writeDb(db) { fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2)); }
-
-function hash32(str) {
-  let h = 2166136261 >>> 0;
-  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
-  return (h >>> 0).toString(36);
-}
 
 function createPoll(meta) {
   const required = ['title','tz','slot','startISO','endISO','hStart','hEnd'];
