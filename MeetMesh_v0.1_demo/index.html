@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MeetMesh · v0.1 demo</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <style>
+    :root{
+      --bg:#0b0d13;
+      --text:#eaf0fb;
+      --muted:#9aa6bd;
+      --card:#121621;
+      --accent:#06B6D4; /* cyan-500 */
+      --accent-2:#7C3AED; /* violet-600 */
+      --ok:#10b981;
+      --warn:#fb923c;
+      --danger:#ef4444;
+      --grid:#1f2a37;
+    }
+    html,body{margin:0;height:100%;}
+    body{
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 85% -10%, rgba(0,224,255,0.18), transparent 60%),
+                  radial-gradient(1000px 500px at 10% -10%, rgba(124,58,237,0.18), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+    }
+    header{
+      display:flex; gap:16px; align-items:center; padding:16px 20px;
+      position:sticky; top:0; z-index:10; background: rgba(11,13,19,0.75); backdrop-filter: blur(8px);
+      border-bottom:1px solid rgba(234,240,251,0.06);
+    }
+    .brand{ display:flex; gap:12px; align-items:center; font-weight:700; letter-spacing:0.2px; }
+    .brand svg{ width:28px; height:28px; }
+    .tag{ font-size:12px; color:var(--muted); border:1px solid rgba(234,240,251,0.12); padding:2px 8px; border-radius:999px; }
+    main{ display:grid; grid-template-columns: 360px 1fr; gap:18px; padding:18px; }
+    .panel{
+      background:linear-gradient(180deg, rgba(18,22,33,0.85), rgba(18,22,33,0.75));
+      border:1px solid rgba(234,240,251,0.08);
+      border-radius:16px; padding:16px;
+    }
+    .panel h2{ margin:0 0 10px; font-size:16px; color:#c8d4ea; }
+    .row{ display:grid; grid-template-columns: 120px 1fr; gap:10px; align-items:center; margin:10px 0; }
+    input, select, textarea, button{
+      font: inherit; color: var(--text);
+    }
+    input[type="date"], input[type="time"], input[type="number"], input[type="text"], select, textarea{
+      background:#0e111a; border:1px solid rgba(234,240,251,0.12); border-radius:10px; padding:10px 12px; outline:none;
+    }
+    input:focus, select:focus, textarea:focus{ border-color: var(--accent); box-shadow: 0 0 0 3px rgba(6,182,212,0.15); }
+    .btn{
+      border:1px solid rgba(234,240,251,0.16);
+      background: linear-gradient(90deg, rgba(34,211,238,0.12), rgba(124,58,237,0.12));
+      padding:10px 14px; border-radius:12px; cursor:pointer;
+    }
+    .btn.primary{
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-color: transparent; color:white; font-weight:600;
+    }
+    .btn-row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .muted{ color:var(--muted); font-size:12px; }
+    .grid-wrap{
+      background:linear-gradient(180deg, rgba(18,22,33,0.85), rgba(18,22,33,0.75));
+      border:1px solid rgba(234,240,251,0.08);
+      border-radius:16px; padding:0; overflow:hidden; display:flex; flex-direction:column; min-height:520px;
+    }
+    .grid-toolbar{
+      display:flex; gap:10px; align-items:center; padding:10px; border-bottom:1px solid rgba(234,240,251,0.06);
+    }
+    .legend{ display:flex; gap:14px; align-items:center; margin-left:auto; }
+    .chip{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:#c8d4ea; }
+    .chip .sw{ width:16px; height:12px; border-radius:4px; background:#334155; border:1px solid rgba(234,240,251,0.15); }
+    .grid-scroll{ overflow:auto; }
+    table.scheduler{ border-collapse: separate; border-spacing:0; width: max-content; min-width: 100%; }
+    .th-time{ position:sticky; left:0; z-index:2; background:#0e111a; color:#9fb3d1; font-weight:600; }
+    .th-day{ position:sticky; top:0; z-index:1; background:#0e111a; color:#d2ddf4; text-align:center; }
+    th, td{ border:1px solid #1f2a37; }
+    th{ font-size:12px; padding:8px 10px; }
+    td.cell{ width:28px; height:24px; cursor:crosshair; position:relative; background:#0b1220; }
+    td.cell.my{ box-shadow: inset 0 0 0 1px rgba(6,182,212,0.35); }
+    td.cell[data-level="0"]{ background:#0b1220; }
+    td.cell[data-level="1"]{ background:rgba(34,211,238,0.18); }
+    td.cell[data-level="2"]{ background:rgba(34,211,238,0.26); }
+    td.cell[data-level="3"]{ background:rgba(124,58,237,0.22); }
+    td.cell[data-level="4"]{ background:rgba(124,58,237,0.32); }
+    td.cell[data-level="5"], td.cell[data-level="6"], td.cell[data-level="7"], td.cell[data-level="8"]{ background:linear-gradient(90deg, rgba(34,211,238,0.35), rgba(124,58,237,0.45)); }
+    td.cell[aria-pressed="true"]{ outline:1px solid rgba(6,182,212,0.6); }
+    .suggestions{ padding:10px; border-top:1px solid rgba(234,240,251,0.06); display:flex; flex-direction:column; gap:6px; }
+    .suggestions h3{ margin:0; font-size:14px; color:#c8d4ea; }
+    .suggestions .item{ font-size:12px; color:#cfe0ff; display:flex; justify-content:space-between; }
+    .footer{ padding:12px 16px; font-size:12px; color:var(--muted); text-align:center; }
+    .note{ font-size:12px; color:#b6c4df; }
+    @media (max-width: 980px){
+      main{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand" aria-label="MeetMesh">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="24" y2="24">
+            <stop stop-color="#22D3EE"/>
+            <stop offset="1" stop-color="#7C3AED"/>
+          </linearGradient>
+        </defs>
+        <path d="M12 2c5.523 0 10 4.477 10 10 0 3.24-1.56 6.11-3.97 7.93l.03.07H6.01l.03-.07A9.957 9.957 0 0 1 2 12C2 6.477 6.477 2 12 2Zm0 3.5A6.5 6.5 0 0 0 5.5 12c0 2.03.91 3.85 2.35 5.08h8.3A6.49 6.49 0 0 0 18.5 12 6.5 6.5 0 0 0 12 5.5Z" stroke="url(#g)" stroke-width="1.5"/>
+      </svg>
+      <div>
+        MeetMesh <span class="tag">v0.1 demo</span>
+        <div class="muted">A lightweight, offline When2Meet‑style availability planner</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel" aria-labelledby="setupHeading">
+      <h2 id="setupHeading">Create / Edit Poll</h2>
+      <div class="row">
+        <label for="eventTitle">Title</label>
+        <input id="eventTitle" type="text" placeholder="Team sync / Study session">
+      </div>
+      <div class="row">
+        <label for="yourName">Your name</label>
+        <input id="yourName" type="text" placeholder="Tiger">
+      </div>
+      <div class="row">
+        <label for="slotMins">Slot length</label>
+        <select id="slotMins">
+          <option value="15">15 min</option>
+          <option value="30" selected>30 min</option>
+          <option value="60">60 min</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="dateStart">Date range</label>
+        <div style="display:flex; gap:8px;">
+          <input id="dateStart" type="date">
+          <input id="dateEnd" type="date">
+        </div>
+      </div>
+      <div class="row">
+        <label>Daily hours</label>
+        <div style="display:flex; gap:8px;">
+          <input id="hourStart" type="time" value="09:00" step="900">
+          <input id="hourEnd" type="time" value="21:00" step="900">
+        </div>
+      </div>
+      <div class="row">
+        <label for="tz">Timezone</label>
+        <select id="tz"></select>
+      </div>
+      <div class="btn-row" style="margin-top:8px;">
+        <button class="btn primary" id="generate">Generate grid</button>
+        <button class="btn" id="clearMine">Clear my availability</button>
+      </div>
+
+      <h2 style="margin-top:18px;">Share / Import</h2>
+      <div class="btn-row">
+        <button class="btn" id="export">Copy share code</button>
+        <button class="btn" id="import">Import from code</button>
+        <button class="btn" id="sample">Add sample participants</button>
+      </div>
+      <p class="note">This is an offline demo (no backend). Share by copying the code and sending it to teammates; they can import and mark their availability locally.</p>
+    </section>
+
+    <section class="grid-wrap" aria-labelledby="gridHeading">
+      <div class="grid-toolbar">
+        <h2 id="gridHeading" style="margin:0;">Availability Grid</h2>
+        <div class="legend">
+          <span class="chip"><span class="sw" style="background:#0b1220;"></span>0</span>
+          <span class="chip"><span class="sw" style="background:rgba(34,211,238,0.18);"></span>1</span>
+          <span class="chip"><span class="sw" style="background:rgba(34,211,238,0.26);"></span>2</span>
+          <span class="chip"><span class="sw" style="background:rgba(124,58,237,0.22);"></span>3</span>
+          <span class="chip"><span class="sw" style="background:linear-gradient(90deg, rgba(34,211,238,0.35), rgba(124,58,237,0.45));"></span>4+</span>
+        </div>
+      </div>
+      <div class="grid-scroll">
+        <table class="scheduler" id="grid"></table>
+      </div>
+      <div class="suggestions">
+        <h3>Top suggestions (most overlap)</h3>
+        <div id="suggestList"></div>
+      </div>
+      <div class="footer">Made for Tiger · local-only demo · no accounts, no tracking</div>
+    </section>
+  </main>
+
+  <script>
+    // --- Utilities ---
+    const $ = (s, root=document)=>root.querySelector(s);
+    const $$ = (s, root=document)=>Array.from(root.querySelectorAll(s));
+    const pad2 = n => String(n).padStart(2,'0');
+    const fmtDate = d => d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate());
+    const parseTime = t => { const [h,m]=t.split(':').map(Number); return h*60+m; };
+    const minutesToLabel = m => {
+      const h = Math.floor(m/60), mm=m%60;
+      const ampm = h>=12?'PM':'AM';
+      const hh = ((h+11)%12)+1;
+      return hh+':'+pad2(mm)+' '+ampm;
+    };
+    const hash32 = str => {
+      let h=2166136261>>>0;
+      for (let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); }
+      return (h>>>0).toString(36);
+    };
+    const todayISO = ()=>fmtDate(new Date());
+
+    // Timezones
+    const tzSelect = $('#tz');
+    const tzs = Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : ['UTC','America/Chicago','America/New_York','America/Los_Angeles','Asia/Shanghai'];
+    tzs.forEach(z=>{ const o=document.createElement('option'); o.value=z; o.textContent=z; tzSelect.appendChild(o); });
+    const guessTZ = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Chicago';
+    tzSelect.value = guessTZ;
+
+    // Defaults
+    $('#dateStart').value = todayISO();
+    const end = new Date(); end.setDate(end.getDate()+3);
+    $('#dateEnd').value = fmtDate(end);
+    $('#eventTitle').value = 'Team sync';
+    $('#yourName').value = 'Tiger';
+
+    // State
+    let poll = null;
+    let eventId = null;
+    let painting = null; // 'add' | 'remove' | null
+
+    function getDays(startISO, endISO){
+      const days=[];
+      const a = new Date(startISO+'T00:00:00');
+      const b = new Date(endISO+'T00:00:00');
+      for (let d=new Date(a); d<=b; d.setDate(d.getDate()+1)){
+        days.push(new Date(d));
+      }
+      return days;
+    }
+
+    function generate(){
+      const title = $('#eventTitle').value.trim() || 'Untitled';
+      const name = $('#yourName').value.trim() || 'Me';
+      const slot = parseInt($('#slotMins').value,10);
+      const startISO = $('#dateStart').value;
+      const endISO = $('#dateEnd').value;
+      const tz = $('#tz').value;
+      const hStart = parseTime($('#hourStart').value);
+      const hEnd = parseTime($('#hourEnd').value);
+      if (!startISO || !endISO){ alert('Please choose a date range'); return; }
+      if (hEnd <= hStart){ alert('End time must be after start time'); return; }
+
+      poll = { title, tz, slot, startISO, endISO, hStart, hEnd };
+      eventId = 'meetmesh_' + hash32(JSON.stringify(poll));
+      savePollMeta();
+
+      const days = getDays(startISO, endISO);
+      const slotsPerDay = Math.floor((hEnd - hStart) / slot);
+      const grid = $('#grid');
+      grid.innerHTML='';
+
+      // Build header
+      const thead = document.createElement('thead');
+      const hr = document.createElement('tr');
+      const th0 = document.createElement('th'); th0.className='th-day th-time'; th0.textContent='Time';
+      hr.appendChild(th0);
+      days.forEach((d,i)=>{
+        const th = document.createElement('th'); th.className='th-day';
+        const label = d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+        th.textContent = label;
+        hr.appendChild(th);
+      });
+      thead.appendChild(hr); grid.appendChild(thead);
+
+      // Build body
+      const tb = document.createElement('tbody');
+      for (let s=0; s<slotsPerDay; s++){
+        const tr = document.createElement('tr');
+        const timeMins = poll.hStart + s*poll.slot;
+        const th = document.createElement('th'); th.className='th-time'; th.textContent = minutesToLabel(timeMins);
+        tr.appendChild(th);
+        for (let d=0; d<days.length; d++){
+          const td = document.createElement('td');
+          td.className = 'cell';
+          td.dataset.key = d + '-' + s;
+          td.setAttribute('role','button');
+          td.setAttribute('aria-pressed','false');
+          td.addEventListener('mousedown', e=> startPaint(td, e));
+          td.addEventListener('mouseenter', e=> movePaint(td, e));
+          td.addEventListener('mouseup', endPaint);
+          td.addEventListener('touchstart', e=> { e.preventDefault(); startPaint(td, e.touches[0]); }, {passive:false});
+          td.addEventListener('touchmove', e=> { e.preventDefault(); const t=e.touches[0]; const el=document.elementFromPoint(t.clientX, t.clientY); if (el && el.classList.contains('cell')) movePaint(el, t); }, {passive:false});
+          td.addEventListener('touchend', endPaint);
+          tr.appendChild(td);
+        }
+        tb.appendChild(tr);
+      }
+      grid.appendChild(tb);
+
+      // Load my cells, update heatmap
+      renderAll();
+    }
+
+    function startPaint(td, e){
+      const mine = getMine();
+      const k = td.dataset.key;
+      const has = mine.cells.has(k);
+      painting = has ? 'remove' : 'add';
+      setCellMine(k, painting==='add');
+      document.addEventListener('mouseup', endPaint);
+    }
+    function movePaint(td, e){
+      if (!painting) return;
+      const k = td.dataset.key;
+      setCellMine(k, painting==='add');
+    }
+    function endPaint(){
+      painting = null;
+      document.removeEventListener('mouseup', endPaint);
+      saveMine();
+      renderAll();
+    }
+
+    function storageKey(){ return eventId || 'meetmesh_default'; }
+    function getAll(){
+      let raw = localStorage.getItem(storageKey());
+      if (!raw){
+        const name = ($('#yourName').value.trim() || 'Me');
+        const base = { poll, people: { [name]: { cells: [] } } };
+        localStorage.setItem(storageKey(), JSON.stringify(base));
+        raw = JSON.stringify(base);
+      }
+      const parsed = JSON.parse(raw);
+      // normalize Set
+      for (const k in parsed.people){
+        parsed.people[k].cells = new Set(parsed.people[k].cells);
+      }
+      return parsed;
+    }
+    function saveAll(all){
+      const clone = { poll: all.poll, people:{} };
+      for (const k in all.people){
+        clone.people[k] = { cells: Array.from(all.people[k].cells) };
+      }
+      localStorage.setItem(storageKey(), JSON.stringify(clone));
+    }
+    function getMine(){
+      const all = getAll();
+      const name = ($('#yourName').value.trim() || 'Me');
+      if (!all.people[name]) all.people[name] = { cells: new Set() };
+      return all.people[name];
+    }
+    function saveMine(){
+      const all = getAll();
+      const name = ($('#yourName').value.trim() || 'Me');
+      all.people[name] = getMine();
+      saveAll(all);
+    }
+    function setCellMine(key, on){
+      const mine = getMine();
+      if (on) mine.cells.add(key); else mine.cells.delete(key);
+      const cell = document.querySelector('td.cell[data-key="'+key+'"]');
+      if (cell){ cell.setAttribute('aria-pressed', on?'true':'false'); cell.classList.toggle('my', on); }
+    }
+
+    function renderAll(){
+      if (!poll) return;
+      const all = getAll();
+      const grid = $('#grid');
+      const cells = $$('.cell', grid);
+      const counts = new Map();
+      // reset
+      cells.forEach(c=>{ c.dataset.level='0'; c.setAttribute('aria-pressed','false'); c.classList.remove('my'); });
+      // mark mine
+      const mine = getMine();
+      mine.cells.forEach(k=>{
+        const cell = grid.querySelector('[data-key="'+k+'"]');
+        if (cell){ cell.classList.add('my'); cell.setAttribute('aria-pressed','true'); }
+      });
+      // aggregate
+      Object.values(all.people).forEach(p=>{
+        p.cells.forEach(k=> counts.set(k, (counts.get(k)||0)+1));
+      });
+      counts.forEach((v,k)=>{
+        const cell = grid.querySelector('[data-key="'+k+'"]');
+        if (cell){ cell.dataset.level = String(Math.min(v,8)); }
+      });
+      renderSuggestions(counts);
+    }
+
+    function renderSuggestions(counts){
+      const list = $('#suggestList'); list.innerHTML='';
+      const slotCount = counts.size;
+      const arr = Array.from(counts.entries()).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      if (arr.length===0){ list.innerHTML = '<div class="item muted">No data yet — paint your availability.</div>'; return; }
+      arr.forEach(([key,score])=>{
+        const [dIdx, sIdx] = key.split('-').map(Number);
+        const start = new Date(poll.startISO+'T00:00:00');
+        start.setDate(start.getDate()+dIdx);
+        const tStart = poll.hStart + sIdx*poll.slot;
+        const tEnd = tStart + poll.slot;
+        const labelDate = start.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+        const labelTime = minutesToLabel(tStart)+' - '+minutesToLabel(tEnd);
+        const div = document.createElement('div');
+        div.className='item';
+        div.innerHTML = '<span>'+labelDate+' · '+labelTime+'</span><span>'+score+' people</span>';
+        list.appendChild(div);
+      });
+    }
+
+    function clearMine(){
+      if (!poll) return;
+      if (!confirm('Clear your availability?')) return;
+      const mine = getMine(); mine.cells.clear();
+      saveMine(); renderAll();
+    }
+
+    function exportCode(){
+      if (!poll){ alert('Generate the grid first.'); return; }
+      const all = getAll();
+      // convert Sets to arrays
+      const out = { poll: all.poll || poll, people: {} };
+      for (const k in all.people){ out.people[k] = { cells: Array.from(all.people[k].cells) }; }
+      const json = JSON.stringify(out);
+      const code = btoa(unescape(encodeURIComponent(json)));
+      navigator.clipboard.writeText(code).then(()=>{
+        alert('Copied share code to clipboard ('+code.length+' chars).');
+      }, ()=>{
+        prompt('Copy this code:', code);
+      });
+    }
+    async function importCode(){
+      const code = prompt('Paste the share code:');
+      if (!code) return;
+      try{
+        const json = decodeURIComponent(escape(atob(code)));
+        const data = JSON.parse(json);
+        poll = data.poll;
+        eventId = 'meetmesh_' + hash32(JSON.stringify(poll));
+        // rehydrate sets
+        const all = { poll: data.poll, people: {} };
+        for (const k in data.people){ all.people[k] = { cells: new Set(data.people[k].cells) }; }
+        saveAll(all);
+        // sync UI
+        $('#eventTitle').value = poll.title || '';
+        $('#slotMins').value = String(poll.slot);
+        $('#dateStart').value = poll.startISO;
+        $('#dateEnd').value = poll.endISO;
+        $('#hourStart').value = pad2(Math.floor(poll.hStart/60))+':'+pad2(poll.hStart%60);
+        $('#hourEnd').value = pad2(Math.floor(poll.hEnd/60))+':'+pad2(poll.hEnd%60);
+        $('#tz').value = poll.tz || guessTZ;
+        generate();
+        alert('Imported poll and participants.');
+      }catch(e){
+        console.error(e);
+        alert('Invalid code.');
+      }
+    }
+
+    function addSample(){
+      if (!poll){ alert('Generate the grid first.'); return; }
+      const all = getAll();
+      const names = ['Alice','Bob','Carlos','Dana'];
+      const keys = $$('.cell').map(c=>c.dataset.key);
+      function pick(n){ const s=new Set(); while(s.size<n){ s.add(keys[Math.floor(Math.random()*keys.length)]); } return s; }
+      names.forEach((nm,i)=>{ if (!all.people[nm]) all.people[nm] = { cells: pick(80 + Math.floor(Math.random()*40)) }; });
+      saveAll(all); renderAll(); alert('Added 4 sample participants.');
+    }
+
+    function savePollMeta(){
+      // ensure storage exists
+      getAll(); // initializes structure if needed
+      const all = getAll(); all.poll = poll; saveAll(all);
+    }
+
+    // Wire up buttons
+    $('#generate').addEventListener('click', generate);
+    $('#clearMine').addEventListener('click', clearMine);
+    $('#export').addEventListener('click', exportCode);
+    $('#import').addEventListener('click', importCode);
+    $('#sample').addEventListener('click', addSample);
+
+    // Initial render
+    generate();
+  </script>
+</body>
+</html>
