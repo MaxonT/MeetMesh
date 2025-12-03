@@ -1,3 +1,25 @@
 {
-  "polls": {}
+  "polls": {
+    "mm_1a1zr9d": {
+      "id": "mm_1a1zr9d",
+      "meta": {
+        "title": "Test Meeting",
+        "tz": "America/New_York",
+        "slot": 30,
+        "startISO": "2025-12-15T00:00:00.000Z",
+        "endISO": "2025-12-16T00:00:00.000Z",
+        "hStart": 9,
+        "hEnd": 17
+      },
+      "people": {
+        "Alice": {
+          "cells": [
+            "2025-12-15T14:00",
+            "2025-12-15T14:30",
+            "2025-12-15T15:00"
+          ]
+        }
+      }
+    }
+  }
 }
