@@ -5,16 +5,17 @@
   "type": "commonjs",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node -r dotenv/config server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "seed": "node prisma/seed.js",
-    "migrate:json-to-sqlite": "node scripts/migrate-json-to-sqlite.js"
+    "seed": "node -r dotenv/config prisma/seed.js",
+    "migrate:json-to-sqlite": "node -r dotenv/config scripts/migrate-json-to-sqlite.js"
   },
   "dependencies": {
+    "@prisma/client": "^5.7.1",
     "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "@prisma/client": "^5.7.1"
+    "dotenv": "^16.6.1",
+    "express": "^4.19.2"
   },
   "devDependencies": {
     "prisma": "^5.7.1"

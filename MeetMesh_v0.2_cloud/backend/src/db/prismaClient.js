@@ -12,12 +12,9 @@ try {
   if (process.env.DATABASE_URL) {
     const { PrismaClient } = require('@prisma/client');
     prisma = new PrismaClient();
-    
-    // Test connection
-    prisma.$connect().catch(err => {
-      console.warn('Prisma connection failed, falling back to JSON DB:', err.message);
-      prisma = null;
-    });
+    console.log('Prisma client initialized with DATABASE_URL:', process.env.DATABASE_URL);
+  } else {
+    console.log('DATABASE_URL not set, using JSON DB fallback');
   }
 } catch (error) {
   console.warn('Prisma client initialization failed, falling back to JSON DB:', error.message);
