@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Poll {
+  id            String         @id
+  title         String
+  tz            String
+  slot          Int
+  startISO      String
+  endISO        String
+  hStart        Int
+  hEnd          Int
+  createdAt     DateTime       @default(now())
+  availabilities Availability[]
+}
+
+model Availability {
+  id        Int      @id @default(autoincrement())
+  pollId    String
+  name      String
+  cells     String   // JSON array stored as string
+  createdAt DateTime @default(now())
+  poll      Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, name])
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String?  @unique
+  createdAt DateTime @default(now())
+}
