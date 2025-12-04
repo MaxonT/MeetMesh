@@ -50,6 +50,7 @@ export interface EventResponse {
   event: EventRecord;
   participants: UserRecord[];
   availability: AvailabilityView;
+  myAvailability?: AvailabilityInterval[];
 }
 
 export interface CreateEventInput {

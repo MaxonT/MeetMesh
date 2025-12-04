@@ -28,8 +28,9 @@ export async function createEvent(data: CreateEventInput): Promise<EventRecord> 
 /**
  * Get event details with participants and availability
  */
-export async function getEvent(eventId: string): Promise<EventResponse> {
-  const response = await api.get(`/events/${eventId}`);
+export async function getEvent(eventId: string, userId?: string): Promise<EventResponse> {
+  const params = userId ? { userId } : undefined;
+  const response = await api.get(`/events/${eventId}`, { params });
   return response.data;
 }
 

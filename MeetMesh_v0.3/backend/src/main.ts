@@ -75,7 +75,10 @@ function getDateRange(startDate: string, endDate: string): string[] {
     return days;
   }
   while (current <= end) {
-    days.push(current.toISODate());
+    const isoDate = current.toISODate();
+    if (isoDate) {
+      days.push(isoDate);
+    }
     current = current.plus({ days: 1 });
   }
   return days;
@@ -235,11 +238,20 @@ app.get('/events/:eventId', (req: Request, res: Response) => {
     return res.status(404).json({ message: 'Event not found' });
   }
   const availability = buildAvailabilityView(state);
-  res.json({
+  const userId = req.query.userId as string | undefined;
+  
+  const response: any = {
     event: state.meta,
     participants: Array.from(state.users.values()),
     availability,
-  });
+  };
+  
+  // Include user's availability if userId is provided
+  if (userId && state.availability.has(userId)) {
+    response.myAvailability = state.availability.get(userId) ?? [];
+  }
+  
+  res.json(response);
 });
 
 app.patch('/events/:eventId', (req: Request, res: Response) => {
@@ -291,31 +303,93 @@ app.patch('/events/:eventId/users/:userId', (req: Request, res: Response) => {
 });
 
 app.post('/events/:eventId/availability', (req: Request, res: Response) => {
-  const { userId, date, startTime, endTime, timezone } = req.body;
+  const { userId, intervals, date, startTime, endTime, timezone } = req.body;
   const state = events.get(req.params.eventId);
   if (!state) {
     return res.status(404).json({ message: 'Event not found' });
   }
-  if (!userId || !date || !startTime || !endTime) {
-    return res.status(400).json({ message: 'Missing availability fields' });
+  if (!userId) {
+    return res.status(400).json({ message: 'Missing userId' });
   }
   if (!state.users.has(userId)) {
     return res.status(404).json({ message: 'User not found' });
   }
 
   try {
-    const start = parseEventDateTime(date, startTime, timezone ?? state.meta.timezone, state.meta.timezone);
-    const end = parseEventDateTime(date, endTime, timezone ?? state.meta.timezone, state.meta.timezone);
-    if (end <= start) {
-      return res.status(400).json({ message: 'End time must be after start time' });
+    // Support both batch intervals array and single interval
+    if (intervals && Array.isArray(intervals)) {
+      // Batch mode: replace all availability with new intervals
+      const userTimezone = timezone ?? state.meta.timezone;
+      const normalizedIntervals: AvailabilityInterval[] = [];
+      
+      for (const interval of intervals) {
+        if (!interval.date || !interval.startTime || !interval.endTime) {
+          continue; // Skip invalid intervals
+        }
+        const start = parseEventDateTime(
+          interval.date,
+          interval.startTime,
+          userTimezone,
+          state.meta.timezone
+        );
+        const end = parseEventDateTime(
+          interval.date,
+          interval.endTime,
+          userTimezone,
+          state.meta.timezone
+        );
+        if (end > start) {
+          const isoDate = start.toISODate();
+          if (isoDate) {
+            normalizedIntervals.push({
+              date: isoDate,
+              startTime: formatTime(start),
+              endTime: formatTime(end),
+            });
+          }
+        }
+      }
+      
+      // Merge intervals by date and replace all availability
+      const intervalsByDate = new Map<string, AvailabilityInterval[]>();
+      normalizedIntervals.forEach((interval) => {
+        const existing = intervalsByDate.get(interval.date) ?? [];
+        existing.push(interval);
+        intervalsByDate.set(interval.date, existing);
+      });
+      
+      const mergedIntervals: AvailabilityInterval[] = [];
+      intervalsByDate.forEach((dayIntervals) => {
+        mergedIntervals.push(...mergeIntervals(dayIntervals));
+      });
+      
+      // Replace all availability for this user
+      state.availability.set(userId, mergedIntervals);
+    } else if (date && startTime && endTime) {
+      // Single interval mode (backward compatibility)
+      const start = parseEventDateTime(date, startTime, timezone ?? state.meta.timezone, state.meta.timezone);
+      const end = parseEventDateTime(date, endTime, timezone ?? state.meta.timezone, state.meta.timezone);
+      if (end <= start) {
+        return res.status(400).json({ message: 'End time must be after start time' });
+      }
+      const isoDate = start.toISODate();
+      if (!isoDate) {
+        return res.status(400).json({ message: 'Invalid date format' });
+      }
+      const normalized: AvailabilityInterval = {
+        date: isoDate,
+        startTime: formatTime(start),
+        endTime: formatTime(end),
+      };
+      upsertAvailability(state, userId, normalized);
+    } else {
+      return res.status(400).json({ message: 'Missing availability fields: provide either intervals array or date/startTime/endTime' });
     }
-    const normalized: AvailabilityInterval = {
-      date: start.toISODate()!,
-      startTime: formatTime(start),
-      endTime: formatTime(end),
-    };
-    upsertAvailability(state, userId, normalized);
-    res.status(201).json({ message: 'Availability saved', availability: state.availability.get(userId) });
+
+    res.status(201).json({ 
+      message: 'Availability saved', 
+      availability: state.availability.get(userId) ?? [] 
+    });
   } catch (error: any) {
     res.status(400).json({ message: error.message ?? 'Unable to save availability' });
   }

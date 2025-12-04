@@ -75,23 +75,17 @@ export const useMeetMeshStore = create<MeetMeshStore>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      const data = await api.getEvent(eventId);
+      const { userId } = get();
+      const data = await api.getEvent(eventId, userId ?? undefined);
       
       set({
         currentEvent: data.event,
         participants: data.participants,
         allAvailability: data.availability,
         selectedTimezone: data.event.timezone,
+        myAvailability: data.myAvailability ?? [],
         isLoading: false,
       });
-      
-      // Extract user's availability if userId is set
-      const { userId } = get();
-      if (userId && data.availability) {
-        // This will be populated by the backend
-        // For now, we'll set an empty array
-        set({ myAvailability: [] });
-      }
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Failed to load event',
