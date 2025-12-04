@@ -6,6 +6,7 @@
     "build": "tsc",
     "dev": "ts-node src/main.ts",
     "lint": "echo \"No linter configured\"",
+    "prestart": "npm run build",
     "start": "node dist/main.js"
   },
   "dependencies": {
