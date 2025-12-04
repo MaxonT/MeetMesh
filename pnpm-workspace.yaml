@@ -1,3 +1,4 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+  - 'MeetMesh_v0.2_cloud/*'
