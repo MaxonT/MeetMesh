@@ -129,7 +129,7 @@ export default function EventPage() {
         <div className="p-4 border-b bg-gray-50">
           <h2 className="text-xl font-semibold">Select Your Availability</h2>
           <p className="text-sm text-gray-600 mt-1">
-            Click and drag to select times when you're available
+            Click and drag to select times when you&apos;re available
           </p>
         </div>
         

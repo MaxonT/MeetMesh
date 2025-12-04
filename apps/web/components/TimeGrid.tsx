@@ -18,11 +18,6 @@ interface TimeGridProps {
   currentUserId?: string | null;
 }
 
-interface SelectedBlock {
-  date: string;
-  time: string;
-}
-
 export function TimeGrid({
   startDate,
   endDate,
@@ -32,7 +27,6 @@ export function TimeGrid({
   myAvailability,
   onAvailabilityChange,
   totalParticipants,
-  currentUserId,
 }: TimeGridProps) {
   const { dragState, setDragState, resetDragState } = useMeetMeshStore();
   const [selectedBlocks, setSelectedBlocks] = useState<Set<string>>(new Set());
