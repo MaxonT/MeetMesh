@@ -46,7 +46,7 @@ Create a time grid, share a link, let everyone paint their availability, and Mee
 
 ## Project Structure
 
-```text
+
 backend/           # Node + Express API (JSON file DB)
   server.js
   src/polls.js
@@ -196,24 +196,4 @@ License
 
 MIT (or choose your preferred license here).
 
----
 
-## 🎯 额外送你几个「描述模板」
-
-你可以用在 GitHub description、个人网站、作品集上。
-
-### 1）GitHub repo short description（80 字左右）
-
-> Real-time When2Meet-style scheduling mesh. Create a poll, drag to paint availability, and let the cloud backend surface the best group time.
-
-### 2）长一点的项目介绍（作品集用）
-
-> MeetMesh is a lightweight, full-stack scheduling mesh inspired by When2Meet. The app lets users create a time grid, share a link, and have everyone “paint” their availability directly on the calendar. A tiny Express backend stores availability in a JSON file and aggregates the data into ranked time suggestions, while a Vite + vanilla JS frontend focuses on a fast, low-friction interaction flow. It’s designed as a minimal, deployable MVP that can later grow into a full scheduling platform with richer analytics and integrations.
-
-### 3）一句话 tagline
-
-> “Paint your availability, let MeetMesh pick the time.”
-
----
-
-如果你想要 **“面向投资人 / 招聘官”的版本**，我也可以帮你改成更偏 product / impact 角度的描述，让它直接变成你作品集里的旗舰项目之一 💪
