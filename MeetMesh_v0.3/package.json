@@ -1,0 +1,19 @@
+{
+  "name": "meetmesh",
+  "private": true,
+  "packageManager": "pnpm@8.0.0",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "start": "npm run start --workspace api"
+  },
+  "devDependencies": {
+    "turbo": "^1.10.0"
+  }
+}

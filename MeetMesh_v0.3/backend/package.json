@@ -1,0 +1,25 @@
+{
+  "name": "api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/main.ts",
+    "lint": "echo \"No linter configured\"",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "luxon": "^3.4.4",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@meetmesh/tsconfig": "file:../../packages/tsconfig",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.11",
+    "@types/uuid": "^9.0.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  }
+}
