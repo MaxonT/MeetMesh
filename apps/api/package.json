@@ -9,7 +9,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@meetmesh/tsconfig": "workspace:*",
+    "@meetmesh/tsconfig": "file:../../packages/tsconfig",
     "typescript": "^5.0.0"
   }
 }
