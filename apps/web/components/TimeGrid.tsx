@@ -5,6 +5,7 @@ import type { AvailabilityInterval, AvailabilityView } from '@/types';
 import { generateTimeBlocks, generateDateRange, formatDate, formatTime12Hour, getAvailabilityColor } from '@/lib/utils';
 import { Tooltip } from './ui/Tooltip';
 import { useMeetMeshStore } from '@/lib/store';
+import { BLOCK_MINUTES } from '@/lib/constants';
 
 interface TimeGridProps {
   startDate: string;
@@ -141,12 +142,12 @@ export function TimeGrid({
         const prevMinutes = prevHour * 60 + prevMin;
         const currMinutes = currHour * 60 + currMin;
         
-        if (currMinutes - prevMinutes === 15) {
+        if (currMinutes - prevMinutes === BLOCK_MINUTES) {
           currentEnd = currTime;
         } else {
           // Add interval and start a new one
           const [endHour, endMin] = currentEnd.split(':').map(Number);
-          const endMinutes = endHour * 60 + endMin + 15;
+          const endMinutes = endHour * 60 + endMin + BLOCK_MINUTES;
           const finalEndTime = `${Math.floor(endMinutes / 60).toString().padStart(2, '0')}:${(endMinutes % 60).toString().padStart(2, '0')}`;
           
           intervals.push({
@@ -162,7 +163,7 @@ export function TimeGrid({
       
       // Add the last interval
       const [endHour, endMin] = currentEnd.split(':').map(Number);
-      const endMinutes = endHour * 60 + endMin + 15;
+      const endMinutes = endHour * 60 + endMin + BLOCK_MINUTES;
       const finalEndTime = `${Math.floor(endMinutes / 60).toString().padStart(2, '0')}:${(endMinutes % 60).toString().padStart(2, '0')}`;
       
       intervals.push({
