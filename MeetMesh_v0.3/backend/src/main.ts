@@ -262,8 +262,7 @@ app.patch('/events/:eventId', (req: Request, res: Response) => {
   const allowedFields = ['eventName', 'description', 'startDate', 'endDate', 'startTime', 'endTime', 'timezone'];
   for (const field of allowedFields) {
     if (req.body[field] !== undefined) {
-      // @ts-expect-error dynamic update
-      state.meta[field] = req.body[field];
+      (state.meta as any)[field] = req.body[field];
     }
   }
   state.meta.updatedAt = new Date().toISOString();
