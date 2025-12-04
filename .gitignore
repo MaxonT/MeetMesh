@@ -5,3 +5,15 @@ node_modules/
 package-lock.json
 *.db
 *.db-journal
+
+# Turborepo
+.turbo
+
+# Build outputs
+dist/
+build/
+.next/
+
+# pnpm
+.pnpm-store/
+pnpm-lock.yaml
