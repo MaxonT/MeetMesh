@@ -1,0 +1,15 @@
+{
+  "name": "web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "lint": "next lint"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@meetmesh/tsconfig": "workspace:*",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,5 @@
+# Ignore monorepo configuration when building from subdirectories
+turbo.json
+pnpm-workspace.yaml
+apps/
+packages/
