@@ -1,23 +1,24 @@
 {
-  "name": "meetmesh-backend",
-  "version": "0.2.0",
+  "name": "api",
+  "version": "0.0.0",
   "private": true,
-  "type": "commonjs",
-  "main": "server.js",
   "scripts": {
-    "start": "node -r dotenv/config server.js",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "seed": "node -r dotenv/config prisma/seed.js",
-    "migrate:json-to-sqlite": "node -r dotenv/config scripts/migrate-json-to-sqlite.js"
+    "build": "tsc",
+    "dev": "ts-node src/main.ts",
+    "lint": "echo \"No linter configured\""
   },
   "dependencies": {
-    "@prisma/client": "^5.7.1",
     "cors": "^2.8.5",
-    "dotenv": "^16.6.1",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "luxon": "^3.4.4",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "prisma": "^5.7.1"
+    "@meetmesh/tsconfig": "file:../../packages/tsconfig",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.11",
+    "@types/uuid": "^9.0.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
   }
 }
