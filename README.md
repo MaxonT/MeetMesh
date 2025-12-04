@@ -55,3 +55,12 @@ frontend/          # Vite SPA that talks to the backend
 others/
   README.md        # Internal notes
   .env.example
+
+⸻
+
+🪪 License
+
+© 2025 Tiger — MIT License
+Attribution appreciated, not required.
+
+⸻
