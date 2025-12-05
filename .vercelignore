@@ -3,3 +3,8 @@ turbo.json
 pnpm-workspace.yaml
 apps/
 packages/
+
+# Preserve v0.3 workspace configuration needed during deployments
+!MeetMesh_v0.3/pnpm-workspace.yaml
+!MeetMesh_v0.3/turbo.json
+!MeetMesh_v0.3/packages/**
