@@ -34,16 +34,33 @@ export interface AvailabilityByDate {
   blocks: AvailabilityBlock[];
 }
 
+export interface ParticipantAvailability {
+  userId: string;
+  username?: string;
+  availableBlocks: number;
+  availabilityPct: number;
+}
+
 export interface AvailabilitySummary {
   bestBlocks: { date: string; time: string; count: number }[];
   everyoneBlocks: { date: string; time: string }[];
   mostAvailableDay: { date: string; total: number } | null;
+  participantAvailability: ParticipantAvailability[];
+  totalBlocks: number;
+  totalParticipants: number;
+}
+
+export interface LocalizedAvailability {
+  timezone: string;
+  availabilityByDate: AvailabilityByDate[];
+  availabilityMatrix: Record<string, Record<string, number>>;
 }
 
 export interface AvailabilityView {
   availabilityByDate: AvailabilityByDate[];
   availabilityMatrix: Record<string, Record<string, number>>;
   summary: AvailabilitySummary;
+  localizedAvailability?: LocalizedAvailability;
 }
 
 export interface EventResponse {
@@ -51,6 +68,8 @@ export interface EventResponse {
   participants: UserRecord[];
   availability: AvailabilityView;
   myAvailability?: AvailabilityInterval[];
+  blockSizeMinutes: number;
+  eventTimezone: string;
 }
 
 export interface CreateEventInput {

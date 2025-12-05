@@ -4,7 +4,7 @@ import { useMeetMeshStore } from '@/lib/store';
 /**
  * Hook for managing event data
  */
-export function useEvent(eventId: string) {
+export function useEvent(eventId: string, viewTimezone?: string) {
   const {
     currentEvent,
     participants,
@@ -16,12 +16,12 @@ export function useEvent(eventId: string) {
   
   useEffect(() => {
     if (eventId) {
-      loadEvent(eventId);
+      loadEvent(eventId, viewTimezone);
     }
-  }, [eventId, loadEvent]);
+  }, [eventId, viewTimezone, loadEvent]);
   
-  const refresh = () => {
-    loadEvent(eventId);
+  const refresh = (timezone?: string) => {
+    loadEvent(eventId, timezone);
   };
   
   return {
