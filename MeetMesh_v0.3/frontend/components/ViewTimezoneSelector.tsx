@@ -53,7 +53,7 @@ export function ViewTimezoneSelector({
   const isViewingUserTimezone = selectedTimezone === userTimezone;
 
   // Build options list
-  const options = [
+  const options: Array<{ value: string; label: string; disabled?: boolean }> = [
     { 
       value: eventTimezone, 
       label: `Event Timezone (${eventTimezone})` 
@@ -68,7 +68,7 @@ export function ViewTimezoneSelector({
   }
 
   // Add separator
-  options.push({ value: '_separator_', label: '---', disabled: true } as any);
+  options.push({ value: '_separator_', label: '---', disabled: true });
 
   // Add common timezones (excluding those already added)
   COMMON_TIMEZONES.forEach((tz) => {

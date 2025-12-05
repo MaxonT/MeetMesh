@@ -16,7 +16,7 @@ import { useUser } from '@/hooks/useUser';
 import { useEvent } from '@/hooks/useEvent';
 import { useAvailability } from '@/hooks/useAvailability';
 import { useMeetMeshStore } from '@/lib/store';
-import type { AvailabilityInterval, EventRecord } from '@/types';
+import type { AvailabilityInterval, AvailabilityView, EventRecord } from '@/types';
 
 export default function EventPage() {
   const params = useParams();
@@ -95,8 +95,14 @@ export default function EventPage() {
   }
 
   const isViewingDifferentTimezone = viewTimezone && viewTimezone !== event.timezone;
-  const displayData = isViewingDifferentTimezone && availability?.localizedAvailability
-    ? availability.localizedAvailability
+  
+  // Use localized availability data for display if available, otherwise use regular availability
+  const availabilityData = isViewingDifferentTimezone && availability?.localizedAvailability
+    ? {
+        availabilityByDate: availability.localizedAvailability.availabilityByDate,
+        availabilityMatrix: availability.localizedAvailability.availabilityMatrix,
+        summary: availability.summary, // Always use the main summary which has all the data
+      } as AvailabilityView
     : availability;
   
   return (
@@ -198,7 +204,7 @@ export default function EventPage() {
             endDate={event.endDate}
             startTime={event.startTime}
             endTime={event.endTime}
-            availability={displayData as any}
+            availability={availabilityData}
             myAvailability={myAvailability}
             onAvailabilityChange={handleAvailabilityChange}
             totalParticipants={participants.length}
