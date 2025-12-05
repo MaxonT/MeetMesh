@@ -1,13 +1,18 @@
 import React from 'react';
-import type { UserRecord } from '@/types';
+import type { UserRecord, ParticipantAvailability } from '@/types';
 import { Card } from './ui/Card';
 
 interface ParticipantListProps {
   participants: UserRecord[];
   currentUserId?: string | null;
+  participantAvailability?: ParticipantAvailability[];
 }
 
-export function ParticipantList({ participants, currentUserId }: ParticipantListProps) {
+export function ParticipantList({ 
+  participants, 
+  currentUserId,
+  participantAvailability 
+}: ParticipantListProps) {
   if (participants.length === 0) {
     return (
       <Card>
@@ -15,6 +20,12 @@ export function ParticipantList({ participants, currentUserId }: ParticipantList
       </Card>
     );
   }
+
+  // Create a map for quick lookup of availability data
+  const availabilityMap = new Map<string, ParticipantAvailability>();
+  participantAvailability?.forEach((pa) => {
+    availabilityMap.set(pa.userId, pa);
+  });
   
   return (
     <Card>
@@ -24,19 +35,50 @@ export function ParticipantList({ participants, currentUserId }: ParticipantList
         </svg>
         Participants ({participants.length})
       </h3>
-      <ul className="space-y-2">
-        {participants.map((participant) => (
-          <li
-            key={participant.userId}
-            className="flex items-center gap-2 text-sm"
-          >
-            <div className="w-2 h-2 bg-blue-500 rounded-full" />
-            <span className={participant.userId === currentUserId ? 'font-semibold' : ''}>
-              {participant.username || 'Anonymous'}
-              {participant.userId === currentUserId && ' (You)'}
-            </span>
-          </li>
-        ))}
+      <ul className="space-y-3">
+        {participants.map((participant) => {
+          const availability = availabilityMap.get(participant.userId);
+          const hasAvailability = availability && availability.availableBlocks > 0;
+          
+          return (
+            <li
+              key={participant.userId}
+              className="flex items-start justify-between gap-3"
+            >
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                  hasAvailability ? 'bg-green-500' : 'bg-gray-300'
+                }`} />
+                <span className={`text-sm truncate ${
+                  participant.userId === currentUserId ? 'font-semibold' : ''
+                }`}>
+                  {participant.username || 'Anonymous'}
+                  {participant.userId === currentUserId && ' (You)'}
+                </span>
+              </div>
+              
+              {availability && (
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="text-right">
+                    <div className="text-xs font-medium text-gray-900">
+                      {availability.availabilityPct}%
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {availability.availableBlocks} blocks
+                    </div>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all"
+                      style={{ width: `${availability.availabilityPct}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </Card>
   );

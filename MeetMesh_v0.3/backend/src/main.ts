@@ -9,6 +9,12 @@ app.use(express.json());
 
 const BLOCK_MINUTES = 15;
 
+function assertValidTimezone(timezone: string) {
+  if (!DateTime.now().setZone(timezone).isValid) {
+    throw new Error('Invalid timezone');
+  }
+}
+
 interface EventRecord {
   eventId: string;
   eventName: string;
@@ -65,6 +71,7 @@ function validateEventRequest(body: any) {
       throw new Error(`Missing field: ${field}`);
     }
   }
+  assertValidTimezone(body.timezone);
 }
 
 function getDateRange(startDate: string, endDate: string): string[] {
@@ -134,7 +141,8 @@ function blockCovered(
   return start <= blockStart && end > blockStart && start < blockEnd;
 }
 
-function buildAvailabilityView(state: EventState) {
+function buildAvailabilityView(state: EventState, targetZone?: string) {
+  const resolvedTargetZone = targetZone && DateTime.now().setZone(targetZone).isValid ? targetZone : undefined;
   const blocks = generateDailyBlocks(state.meta);
   const perDate = [] as {
     date: string;
@@ -142,13 +150,20 @@ function buildAvailabilityView(state: EventState) {
   }[];
 
   const availabilityMatrix: Record<string, Record<string, number>> = {};
+  const userAvailabilityCount = new Map<string, number>();
   let highestCount = 0;
   const bestBlocks: { date: string; time: string; count: number }[] = [];
   const everyoneBlocks: { date: string; time: string }[] = [];
 
+  const localizedBlocks = new Map<string, { time: string; availableUsers: string[] }[]>();
+  const localizedMatrix: Record<string, Record<string, number>> = {};
+
+  let totalBlocks = 0;
+
   for (const [date, times] of blocks.entries()) {
     const blockEntries: { time: string; availableUsers: string[] }[] = [];
     availabilityMatrix[date] = {};
+    totalBlocks += times.length;
     for (const time of times) {
       const start = DateTime.fromISO(`${date}T${time}`, { zone: state.meta.timezone });
       const end = start.plus({ minutes: BLOCK_MINUTES });
@@ -159,6 +174,7 @@ function buildAvailabilityView(state: EventState) {
         );
         if (hasAvailability) {
           availableUsers.push(userId);
+          userAvailabilityCount.set(userId, (userAvailabilityCount.get(userId) ?? 0) + 1);
         }
       }
       blockEntries.push({ time, availableUsers });
@@ -168,6 +184,21 @@ function buildAvailabilityView(state: EventState) {
       }
       if (availableUsers.length === state.users.size && state.users.size > 0) {
         everyoneBlocks.push({ date, time });
+      }
+
+      if (resolvedTargetZone) {
+        const localizedStart = start.setZone(resolvedTargetZone);
+        const localDate = localizedStart.toISODate();
+        const localTime = formatTime(localizedStart);
+        if (localDate) {
+          if (!localizedMatrix[localDate]) {
+            localizedMatrix[localDate] = {};
+          }
+          localizedMatrix[localDate][localTime] = availableUsers.length;
+          const list = localizedBlocks.get(localDate) ?? [];
+          list.push({ time: localTime, availableUsers });
+          localizedBlocks.set(localDate, list);
+        }
       }
     }
     perDate.push({ date, blocks: blockEntries });
@@ -189,6 +220,30 @@ function buildAvailabilityView(state: EventState) {
   );
   dayScores.sort((a, b) => b.total - a.total);
 
+  const participantAvailability = Array.from(state.users.values()).map((user) => {
+    const availableBlocks = userAvailabilityCount.get(user.userId) ?? 0;
+    const availabilityPct = totalBlocks > 0 ? Math.round((availableBlocks / totalBlocks) * 100) : 0;
+    return {
+      userId: user.userId,
+      username: user.username,
+      availableBlocks,
+      availabilityPct,
+    };
+  });
+
+  const localizedAvailability = resolvedTargetZone
+    ? {
+        timezone: resolvedTargetZone,
+        availabilityByDate: Array.from(localizedBlocks.entries())
+          .map(([date, blocksForDay]) => ({
+            date,
+            blocks: blocksForDay.sort((a, b) => a.time.localeCompare(b.time)),
+          }))
+          .sort((a, b) => a.date.localeCompare(b.date)),
+        availabilityMatrix: localizedMatrix,
+      }
+    : undefined;
+
   return {
     availabilityByDate: perDate,
     availabilityMatrix,
@@ -196,7 +251,11 @@ function buildAvailabilityView(state: EventState) {
       bestBlocks,
       everyoneBlocks,
       mostAvailableDay: dayScores[0] ?? null,
+      participantAvailability,
+      totalBlocks,
+      totalParticipants: state.users.size,
     },
+    localizedAvailability,
   };
 }
 
@@ -237,13 +296,16 @@ app.get('/events/:eventId', (req: Request, res: Response) => {
   if (!state) {
     return res.status(404).json({ message: 'Event not found' });
   }
-  const availability = buildAvailabilityView(state);
+  const requestedZone = (req.query.timezone as string | undefined) || undefined;
+  const availability = buildAvailabilityView(state, requestedZone);
   const userId = req.query.userId as string | undefined;
-  
+
   const response: any = {
     event: state.meta,
     participants: Array.from(state.users.values()),
     availability,
+    blockSizeMinutes: BLOCK_MINUTES,
+    eventTimezone: state.meta.timezone,
   };
   
   // Include user's availability if userId is provided
@@ -259,11 +321,40 @@ app.patch('/events/:eventId', (req: Request, res: Response) => {
   if (!state) {
     return res.status(404).json({ message: 'Event not found' });
   }
+  const previousTimezone = state.meta.timezone;
+  const nextTimezone = req.body.timezone ?? previousTimezone;
+  if (req.body.timezone) {
+    try {
+      assertValidTimezone(req.body.timezone);
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message ?? 'Invalid timezone' });
+    }
+  }
   const allowedFields = ['eventName', 'description', 'startDate', 'endDate', 'startTime', 'endTime', 'timezone'];
   for (const field of allowedFields) {
     if (req.body[field] !== undefined) {
       (state.meta as any)[field] = req.body[field];
     }
+  }
+  if (nextTimezone !== previousTimezone) {
+    state.availability.forEach((intervals, userId) => {
+      const converted: AvailabilityInterval[] = intervals
+        .map((interval) => {
+          const start = DateTime.fromISO(`${interval.date}T${interval.startTime}`, { zone: previousTimezone }).setZone(
+            nextTimezone,
+          );
+          const end = DateTime.fromISO(`${interval.date}T${interval.endTime}`, { zone: previousTimezone }).setZone(nextTimezone);
+          const isoDate = start.toISODate();
+          if (!isoDate) return null;
+          return {
+            date: isoDate,
+            startTime: formatTime(start),
+            endTime: formatTime(end),
+          } as AvailabilityInterval;
+        })
+        .filter((interval): interval is AvailabilityInterval => interval !== null);
+      state.availability.set(userId, converted);
+    });
   }
   state.meta.updatedAt = new Date().toISOString();
   res.json(state.meta);
@@ -412,8 +503,13 @@ app.get('/events/:eventId/availability', (req: Request, res: Response) => {
   if (!state) {
     return res.status(404).json({ message: 'Event not found' });
   }
-  const view = buildAvailabilityView(state);
-  res.json(view);
+  const requestedZone = (req.query.timezone as string | undefined) || undefined;
+  const view = buildAvailabilityView(state, requestedZone);
+  res.json({
+    blockSizeMinutes: BLOCK_MINUTES,
+    eventTimezone: state.meta.timezone,
+    ...view,
+  });
 });
 
 const PORT = process.env.PORT || 4000;

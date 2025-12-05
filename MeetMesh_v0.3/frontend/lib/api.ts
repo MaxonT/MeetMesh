@@ -28,9 +28,17 @@ export async function createEvent(data: CreateEventInput): Promise<EventRecord> 
 /**
  * Get event details with participants and availability
  */
-export async function getEvent(eventId: string, userId?: string): Promise<EventResponse> {
-  const params = userId ? { userId } : undefined;
-  const response = await api.get(`/events/${eventId}`, { params });
+export async function getEvent(
+  eventId: string, 
+  userId?: string, 
+  timezone?: string
+): Promise<EventResponse> {
+  const params: Record<string, string> = {};
+  if (userId) params.userId = userId;
+  if (timezone) params.timezone = timezone;
+  const response = await api.get(`/events/${eventId}`, { 
+    params: Object.keys(params).length > 0 ? params : undefined 
+  });
   return response.data;
 }
 

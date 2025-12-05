@@ -37,7 +37,8 @@ interface MeetMeshStore {
   error: string | null;
   
   // Actions
-  loadEvent: (eventId: string) => Promise<void>;
+  loadEvent: (eventId: string, viewTimezone?: string) => Promise<void>;
+  updateEvent: (eventId: string, updates: Partial<EventRecord>) => Promise<void>;
   createUser: (eventId: string, username?: string) => Promise<string>;
   updateUsername: (eventId: string, userId: string, username: string) => Promise<void>;
   saveMyAvailability: (eventId: string, intervals: AvailabilityInterval[]) => Promise<void>;
@@ -71,18 +72,18 @@ export const useMeetMeshStore = create<MeetMeshStore>((set, get) => ({
   },
   
   // Load event data
-  loadEvent: async (eventId: string) => {
+  loadEvent: async (eventId: string, viewTimezone?: string) => {
     set({ isLoading: true, error: null });
     
     try {
       const { userId } = get();
-      const data = await api.getEvent(eventId, userId ?? undefined);
+      const data = await api.getEvent(eventId, userId ?? undefined, viewTimezone);
       
       set({
         currentEvent: data.event,
         participants: data.participants,
         allAvailability: data.availability,
-        selectedTimezone: data.event.timezone,
+        selectedTimezone: viewTimezone || data.event.timezone,
         myAvailability: data.myAvailability ?? [],
         isLoading: false,
       });
@@ -91,6 +92,20 @@ export const useMeetMeshStore = create<MeetMeshStore>((set, get) => ({
         error: error instanceof Error ? error.message : 'Failed to load event',
         isLoading: false,
       });
+    }
+  },
+  
+  // Update event
+  updateEvent: async (eventId: string, updates: Partial<EventRecord>) => {
+    try {
+      const updatedEvent = await api.updateEvent(eventId, updates);
+      
+      set({ currentEvent: updatedEvent });
+      
+      // Reload event to get updated availability (in case timezone changed)
+      await get().loadEvent(eventId);
+    } catch (error) {
+      throw error;
     }
   },
   
