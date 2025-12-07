@@ -1,9 +1,9 @@
-# MeetMesh v0.2 – Cloud Minimal MVP
+# MeetMesh v0.3 – Cloud Minimal MVP
 
 MeetMesh is a lightweight, When2Meet-style scheduling mesh.  
 Create a time grid, share a link, let everyone paint their availability, and MeetMesh will surface the best slots for the group.
 
-> v0.2 (Cloud) – minimal full-stack version with a JSON file backend and a static Vite frontend.
+> v0.3 (Cloud) – minimal full-stack version with a JSON file backend and a static Vite frontend.
 
 ---
 
