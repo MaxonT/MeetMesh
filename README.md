@@ -1,5 +1,4 @@
 
-z
 # MeetMesh v0.3 – Cloud Minimal MVP
 
 MeetMesh is a lightweight, When2Meet-style scheduling mesh.  
