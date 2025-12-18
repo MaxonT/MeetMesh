@@ -206,15 +206,9 @@ export function OptimizedTimeGrid({
     
     onAvailabilityChange(intervals);
   }, [selectedBlocks, onAvailabilityChange]);
-  
-  const handleMouseUp = () => {
-    if (dragState.isDragging) {
-      resetDragState();
-      saveAvailability();
-    }
-  };
 
-  React.useEffect(() => {
+  // 全局鼠标事件处理
+  useEffect(() => {
     const handleGlobalMouseUp = () => {
       if (dragState.isDragging) {
         resetDragState();
@@ -225,6 +219,13 @@ export function OptimizedTimeGrid({
     document.addEventListener('mouseup', handleGlobalMouseUp);
     return () => document.removeEventListener('mouseup', handleGlobalMouseUp);
   }, [dragState.isDragging, resetDragState, saveAvailability]);
+  
+  const handleMouseUp = () => {
+    if (dragState.isDragging) {
+      resetDragState();
+      saveAvailability();
+    }
+  };
 
   // 移动端列表视图
   if (isMobile && viewMode === 'list') {
