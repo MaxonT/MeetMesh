@@ -330,9 +330,7 @@ export function OptimizedTimeGrid({
           ))}
           
           {/* 可见的时间行 */}
-          {visibleTimeBlocks.map((time) => {
-            // Removed unused actualIndex
-            return (
+          {visibleTimeBlocks.map((time) => (
               <React.Fragment key={time}>
                 <div className="sticky left-0 bg-white z-10 border-r border-b border-gray-200 p-2">
                   <span className="text-xs text-gray-600">{formatTime12Hour(time)}</span>
