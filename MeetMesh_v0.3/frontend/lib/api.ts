@@ -8,7 +8,11 @@ import type {
   AvailabilityView,
 } from '@/types';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+
+if (!API_BASE) {
+  throw new Error('NEXT_PUBLIC_API_URL environment variable is required but not set. Please check your environment configuration.');
+}
 
 const api = axios.create({
   baseURL: API_BASE,

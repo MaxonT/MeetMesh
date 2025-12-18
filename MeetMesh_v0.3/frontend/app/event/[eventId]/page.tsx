@@ -6,7 +6,6 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ShareLink } from '@/components/ShareLink';
 import { ParticipantList } from '@/components/ParticipantList';
-import { TimezoneSelector } from '@/components/TimezoneSelector';
 import { ViewTimezoneSelector } from '@/components/ViewTimezoneSelector';
 import { EventSettingsModal } from '@/components/EventSettingsModal';
 import { AvailabilitySummaryComponent } from '@/components/AvailabilitySummary';

@@ -1,5 +1,5 @@
 {
-  "extends": "@meetmesh/tsconfig/base.json",
+  "extends": "../packages/tsconfig/base.json",
   "compilerOptions": {
     "lib": [
       "ES2022",

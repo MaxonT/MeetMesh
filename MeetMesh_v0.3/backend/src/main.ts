@@ -4,10 +4,35 @@ import { v4 as uuidv4 } from 'uuid';
 import { DateTime } from 'luxon';
 
 const app = express();
-app.use(cors());
-app.use(express.json());
 
-const BLOCK_MINUTES = 15;
+// CORS 配置 - 生产环境应该限制具体域名
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || '*',
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  maxAge: 86400 // 24小时
+};
+
+app.use(cors(corsOptions));
+
+// 请求体大小限制 (10MB)
+app.use(express.json({ limit: '10mb' }));
+
+// 基础安全头
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
+
+const BLOCK_MINUTES = parseInt(process.env.BLOCK_MINUTES || '15', 10);
+
+if (isNaN(BLOCK_MINUTES) || BLOCK_MINUTES <= 0) {
+  throw new Error('BLOCK_MINUTES must be a positive number');
+}
 
 function assertValidTimezone(timezone: string) {
   if (!DateTime.now().setZone(timezone).isValid) {
@@ -512,7 +537,12 @@ app.get('/events/:eventId/availability', (req: Request, res: Response) => {
   });
 });
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 4000;
+
+if (!PORT || isNaN(PORT) || PORT <= 0 || PORT > 65535) {
+  throw new Error('PORT must be a valid port number (1-65535)');
+}
+
 app.listen(PORT, () => {
   console.log(`MeetMesh backend listening on port ${PORT}`);
 });

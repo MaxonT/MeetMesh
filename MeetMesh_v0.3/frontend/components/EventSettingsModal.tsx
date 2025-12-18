@@ -64,8 +64,8 @@ export function EventSettingsModal({
 
       await onUpdateEvent(updates);
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Failed to update event settings');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update event settings');
     } finally {
       setIsSubmitting(false);
     }
