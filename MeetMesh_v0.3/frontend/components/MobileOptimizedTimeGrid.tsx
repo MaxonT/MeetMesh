@@ -1,26 +1,36 @@
 import React, { useState, useEffect } from 'react';
+import type { AvailabilityInterval, AvailabilityView } from '@/types';
 
 interface OptimizedTimeGridProps {
   startDate: string;
   endDate: string;
   startTime: string;
   endTime: string;
-  availability: any;
-  myAvailability: any[];
-  onAvailabilityChange: (intervals: any[]) => void;
+  availability: AvailabilityView | null;
+  myAvailability: AvailabilityInterval[];
+  onAvailabilityChange: (intervals: AvailabilityInterval[]) => void;
   totalParticipants: number;
   currentUserId?: string | null;
 }
 
 export function OptimizedTimeGrid({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   startDate,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   endDate,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   startTime,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   endTime,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   availability,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   myAvailability,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onAvailabilityChange,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   totalParticipants,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   currentUserId,
 }: OptimizedTimeGridProps) {
   const [isMobile, setIsMobile] = useState(false);

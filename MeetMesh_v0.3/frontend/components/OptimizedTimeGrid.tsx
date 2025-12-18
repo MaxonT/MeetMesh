@@ -27,7 +27,6 @@ export function OptimizedTimeGrid({
   myAvailability,
   onAvailabilityChange,
   totalParticipants,
-  currentUserId,
 }: OptimizedTimeGridProps) {
   const { dragState, setDragState, resetDragState } = useMeetMeshStore();
   const [selectedBlocks, setSelectedBlocks] = useState<Set<string>>(new Set());
@@ -87,63 +86,6 @@ export function OptimizedTimeGrid({
     setSelectedBlocks(blocks);
   }, [myAvailability]);
 
-  // 移动端列表视图
-  if (isMobile && viewMode === 'list') {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">Select Available Times</h3>
-          <button
-            onClick={() => setViewMode('grid')}
-            className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
-          >
-            Grid View
-          </button>
-        </div>
-        
-        <div className="space-y-3">
-          {dates.map((date) => (
-            <div key={date} className="bg-white rounded-lg border p-4">
-              <h4 className="font-medium text-gray-900 mb-3">{formatDate(date)}</h4>
-              <div className="grid grid-cols-3 gap-2">
-                {timeBlocks.slice(0, 6).map((time) => {
-                  const key = `${date}_${time}`;
-                  const isSelected = selectedBlocks.has(key);
-                  const { count } = getAvailabilityForBlock(date, time);
-                  
-                  return (
-                    <button
-                      key={time}
-                      onClick={() => toggleBlock(date, time, isSelected ? 'deselect' : 'select')}
-                      className={`
-                        p-2 rounded-md text-sm font-medium transition-all
-                        ${isSelected 
-                          ? 'bg-blue-500 text-white shadow-md' 
-                          : count > 0 
-                          ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }
-                        active:scale-95
-                      `}
-                    >
-                      <div>{formatTime12Hour(time)}</div>
-                      {count > 0 && (
-                        <div className="text-xs opacity-75">{count}</div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-              {timeBlocks.length > 6 && (
-                <p className="text-xs text-gray-500 mt-2">+{timeBlocks.length - 6} more time slots</p>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   const getBlockKey = (date: string, time: string) => `${date}_${time}`;
   
   const isBlockSelected = (date: string, time: string) => {
@@ -167,6 +109,21 @@ export function OptimizedTimeGrid({
     return { count, availableUsers };
   };
   
+  const toggleBlock = (date: string, time: string, mode: 'select' | 'deselect') => {
+    setSelectedBlocks((prev) => {
+      const newSet = new Set(prev);
+      const key = getBlockKey(date, time);
+      
+      if (mode === 'select') {
+        newSet.add(key);
+      } else {
+        newSet.delete(key);
+      }
+      
+      return newSet;
+    });
+  };
+
   const handleMouseDown = (date: string, time: string) => {
     const isSelected = isBlockSelected(date, time);
     const mode = isSelected ? 'deselect' : 'select';
@@ -185,29 +142,7 @@ export function OptimizedTimeGrid({
       toggleBlock(date, time, dragState.dragMode);
     }
   };
-  
-  const handleMouseUp = () => {
-    if (dragState.isDragging) {
-      resetDragState();
-      saveAvailability();
-    }
-  };
-  
-  const toggleBlock = (date: string, time: string, mode: 'select' | 'deselect') => {
-    setSelectedBlocks((prev) => {
-      const newSet = new Set(prev);
-      const key = getBlockKey(date, time);
-      
-      if (mode === 'select') {
-        newSet.add(key);
-      } else {
-        newSet.delete(key);
-      }
-      
-      return newSet;
-    });
-  };
-  
+
   const saveAvailability = useCallback(() => {
     // 转换选中的块为时间段
     const intervals: AvailabilityInterval[] = [];
@@ -272,6 +207,13 @@ export function OptimizedTimeGrid({
     onAvailabilityChange(intervals);
   }, [selectedBlocks, onAvailabilityChange]);
   
+  const handleMouseUp = () => {
+    if (dragState.isDragging) {
+      resetDragState();
+      saveAvailability();
+    }
+  };
+
   React.useEffect(() => {
     const handleGlobalMouseUp = () => {
       if (dragState.isDragging) {
@@ -283,6 +225,63 @@ export function OptimizedTimeGrid({
     document.addEventListener('mouseup', handleGlobalMouseUp);
     return () => document.removeEventListener('mouseup', handleGlobalMouseUp);
   }, [dragState.isDragging, resetDragState, saveAvailability]);
+
+  // 移动端列表视图
+  if (isMobile && viewMode === 'list') {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">Select Available Times</h3>
+          <button
+            onClick={() => setViewMode('grid')}
+            className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+          >
+            Grid View
+          </button>
+        </div>
+        
+        <div className="space-y-3">
+          {dates.map((date) => (
+            <div key={date} className="bg-white rounded-lg border p-4">
+              <h4 className="font-medium text-gray-900 mb-3">{formatDate(date)}</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {timeBlocks.slice(0, 6).map((time) => {
+                  const key = `${date}_${time}`;
+                  const isSelected = selectedBlocks.has(key);
+                  const { count } = getAvailabilityForBlock(date, time);
+                  
+                  return (
+                    <button
+                      key={time}
+                      onClick={() => toggleBlock(date, time, isSelected ? 'deselect' : 'select')}
+                      className={`
+                        p-2 rounded-md text-sm font-medium transition-all
+                        ${isSelected 
+                          ? 'bg-blue-500 text-white shadow-md' 
+                          : count > 0 
+                          ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }
+                        active:scale-95
+                      `}
+                    >
+                      <div>{formatTime12Hour(time)}</div>
+                      {count > 0 && (
+                        <div className="text-xs opacity-75">{count}</div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              {timeBlocks.length > 6 && (
+                <p className="text-xs text-gray-500 mt-2">+{timeBlocks.length - 6} more time slots</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   // 只渲染可见的时间块
   const visibleTimeBlocks = timeBlocks.slice(visibleRange.start, visibleRange.end);
@@ -330,8 +329,8 @@ export function OptimizedTimeGrid({
           ))}
           
           {/* 可见的时间行 */}
-          {visibleTimeBlocks.map((time, timeIndex) => {
-            const actualIndex = visibleRange.start + timeIndex;
+          {visibleTimeBlocks.map((time) => {
+            // Removed unused actualIndex
             return (
               <React.Fragment key={time}>
                 <div className="sticky left-0 bg-white z-10 border-r border-b border-gray-200 p-2">

@@ -1,6 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
 import { TIMEZONES } from '@/lib/constants';
 
 interface SmartTimezoneSelectorProps {
@@ -209,7 +207,7 @@ export function SmartTimezoneSelector({
               
               {filteredTimezones.length === 0 && searchTerm && (
                 <div className="text-center py-4 text-gray-500">
-                  No timezones found matching "{searchTerm}"
+                  No timezones found matching &quot;{searchTerm}&quot;
                 </div>
               )}
             </div>
