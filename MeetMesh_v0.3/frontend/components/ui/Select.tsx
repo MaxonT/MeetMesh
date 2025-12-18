@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   error?: string;
-  options: { value: string; label: string; group?: string }[];
+  options: { value: string; label: string; group?: string; disabled?: boolean }[];
 }
 
 export function Select({
@@ -52,7 +52,7 @@ export function Select({
           Object.entries(groupedOptions).map(([group, groupOptions]) => (
             <optgroup key={group} label={group}>
               {groupOptions.map((option) => (
-                <option key={option.value} value={option.value}>
+                <option key={option.value} value={option.value} disabled={option.disabled}>
                   {option.label}
                 </option>
               ))}
@@ -60,7 +60,7 @@ export function Select({
           ))
         ) : (
           options.map((option) => (
-            <option key={option.value} value={option.value}>
+            <option key={option.value} value={option.value} disabled={option.disabled}>
               {option.label}
             </option>
           ))

@@ -36,8 +36,8 @@ export function SmartTimezoneSelector({
     if (!searchTerm) return TIMEZONES.slice(0, 20); // 限制显示数量
     
     return TIMEZONES.filter(tz => 
-      tz.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tz.replace(/_/g, ' ').toLowerCase().includes(searchTerm.toLowerCase())
+      tz.value.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tz.label.toLowerCase().includes(searchTerm.toLowerCase())
     ).slice(0, 10);
   }, [searchTerm]);
 
@@ -174,14 +174,14 @@ export function SmartTimezoneSelector({
           <div className="max-h-64 overflow-y-auto">
             <div className="p-3 space-y-1">
               {filteredTimezones.map((timezone) => {
-                const display = getCurrentTimeDisplay(timezone);
-                const isSelected = timezone === currentViewTimezone;
+                const display = getCurrentTimeDisplay(timezone.value);
+                const isSelected = timezone.value === currentViewTimezone;
                 
                 return (
                   <button
-                    key={timezone}
+                    key={timezone.value}
                     onClick={() => {
-                      onTimezoneChange(timezone);
+                      onTimezoneChange(timezone.value);
                       setIsOpen(false);
                       setSearchTerm('');
                     }}
@@ -195,7 +195,7 @@ export function SmartTimezoneSelector({
                   >
                     <div className="flex items-center justify-between">
                       <div className="text-sm font-medium text-gray-900">
-                        {timezone.replace(/_/g, ' ')}
+                        {timezone.label}
                       </div>
                       <div className="text-sm text-gray-600">
                         {display.time}
