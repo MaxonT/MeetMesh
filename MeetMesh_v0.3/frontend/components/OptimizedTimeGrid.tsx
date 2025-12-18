@@ -363,8 +363,7 @@ export function OptimizedTimeGrid({
                   );
                 })}
               </React.Fragment>
-            );
-          })}
+            ))}
         </div>
       </div>
       
