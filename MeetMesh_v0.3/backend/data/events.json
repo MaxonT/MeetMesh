@@ -1,0 +1,34 @@
+[
+  {
+    "id": "c4adefcb-04cc-4ddb-9c24-fd5bbf9524bf",
+    "meta": {
+      "eventId": "c4adefcb-04cc-4ddb-9c24-fd5bbf9524bf",
+      "eventName": "Test Event",
+      "startDate": "2025-01-01",
+      "endDate": "2025-01-05",
+      "startTime": "09:00",
+      "endTime": "17:00",
+      "timezone": "UTC",
+      "createdAt": "2025-12-18T02:46:07.447Z",
+      "updatedAt": "2025-12-18T02:46:07.447Z"
+    },
+    "users": [],
+    "availability": []
+  },
+  {
+    "id": "cf9efaba-9e4c-493f-a4e8-fe54f9d91c9b",
+    "meta": {
+      "eventId": "cf9efaba-9e4c-493f-a4e8-fe54f9d91c9b",
+      "eventName": "Test Event",
+      "startDate": "2025-01-01",
+      "endDate": "2025-01-05",
+      "startTime": "09:00",
+      "endTime": "17:00",
+      "timezone": "UTC",
+      "createdAt": "2025-12-18T02:46:14.649Z",
+      "updatedAt": "2025-12-18T02:46:14.649Z"
+    },
+    "users": [],
+    "availability": []
+  }
+]

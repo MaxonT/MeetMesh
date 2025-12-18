@@ -2,6 +2,8 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 import { DateTime } from 'luxon';
+import fs from 'fs';
+import path from 'path';
 
 const app = express();
 
@@ -70,12 +72,58 @@ interface EventState {
   availability: Map<string, AvailabilityInterval[]>; // userId -> intervals
 }
 
-const events = new Map<string, EventState>();
+const DATA_DIR = path.join(__dirname, '../data');
+const DATA_FILE = path.join(DATA_DIR, 'events.json');
 
-// 数据持久化警告
-console.warn('⚠️  WARNING: Using in-memory storage. All data will be lost on server restart!');
-console.warn('⚠️  For production, implement database persistence (MongoDB, PostgreSQL, Redis, etc.)');
-console.warn('⚠️  Consider adding periodic data backup to prevent data loss');
+function loadData(): Map<string, EventState> {
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      console.log('Loading data from file storage...');
+      const content = fs.readFileSync(DATA_FILE, 'utf-8');
+      const rawData = JSON.parse(content);
+      
+      const map = new Map<string, EventState>();
+      if (Array.isArray(rawData)) {
+        for (const item of rawData) {
+          if (item && item.id && item.meta) {
+            map.set(item.id, {
+              meta: item.meta,
+              users: new Map(item.users || []),
+              availability: new Map(item.availability || [])
+            });
+          }
+        }
+      }
+      console.log(`Loaded ${map.size} events.`);
+      return map;
+    }
+  } catch (error) {
+    console.error('Failed to load data:', error);
+  }
+  return new Map();
+}
+
+function saveData() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    
+    // Convert Map to serializable object
+    const serializedEvents = Array.from(events.entries()).map(([id, state]) => ({
+      id,
+      meta: state.meta,
+      users: Array.from(state.users.entries()),
+      availability: Array.from(state.availability.entries())
+    }));
+    
+    fs.writeFileSync(DATA_FILE, JSON.stringify(serializedEvents, null, 2));
+  } catch (error) {
+    console.error('Failed to save data:', error);
+  }
+}
+
+const events = loadData();
 
 function parseEventDateTime(
   date: string,
@@ -315,6 +363,7 @@ app.post('/events', (req: Request, res: Response) => {
       availability: new Map(),
     };
     events.set(eventId, record);
+    saveData();
     res.status(201).json(record.meta);
   } catch (error: any) {
     res.status(400).json({ message: error.message ?? 'Unable to create event' });
@@ -387,6 +436,7 @@ app.patch('/events/:eventId', (req: Request, res: Response) => {
     });
   }
   state.meta.updatedAt = new Date().toISOString();
+  saveData();
   res.json(state.meta);
 });
 
@@ -395,6 +445,7 @@ app.delete('/events/:eventId', (req: Request, res: Response) => {
   if (!exists) {
     return res.status(404).json({ message: 'Event not found' });
   }
+  saveData();
   res.json({ message: 'Event deleted' });
 });
 
@@ -406,6 +457,7 @@ app.post('/events/:eventId/users', (req: Request, res: Response) => {
   const userId = uuidv4();
   const user: UserRecord = { userId, username: req.body.username };
   state.users.set(userId, user);
+  saveData();
   res.status(201).json(user);
 });
 
@@ -419,6 +471,7 @@ app.patch('/events/:eventId/users/:userId', (req: Request, res: Response) => {
     return res.status(404).json({ message: 'User not found' });
   }
   user.username = req.body.username ?? user.username;
+  saveData();
   res.json(user);
 });
 
@@ -510,6 +563,7 @@ app.post('/events/:eventId/availability', (req: Request, res: Response) => {
       message: 'Availability saved', 
       availability: state.availability.get(userId) ?? [] 
     });
+    saveData();
   } catch (error: any) {
     res.status(400).json({ message: error.message ?? 'Unable to save availability' });
   }
@@ -525,6 +579,7 @@ app.delete('/events/:eventId/availability', (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Missing userId' });
   }
   state.availability.delete(userId);
+  saveData();
   res.json({ message: 'Availability cleared' });
 });
 
