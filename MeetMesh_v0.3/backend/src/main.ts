@@ -72,6 +72,11 @@ interface EventState {
 
 const events = new Map<string, EventState>();
 
+// 数据持久化警告
+console.warn('⚠️  WARNING: Using in-memory storage. All data will be lost on server restart!');
+console.warn('⚠️  For production, implement database persistence (MongoDB, PostgreSQL, Redis, etc.)');
+console.warn('⚠️  Consider adding periodic data backup to prevent data loss');
+
 function parseEventDateTime(
   date: string,
   time: string,
