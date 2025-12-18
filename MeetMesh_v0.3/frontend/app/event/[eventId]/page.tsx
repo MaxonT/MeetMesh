@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { EventPageSkeleton } from '@/components/SkeletonLoaders';
+import { ErrorState } from '@/components/ErrorStates';
 import { ShareLink } from '@/components/ShareLink';
 import { ParticipantList } from '@/components/ParticipantList';
 import { ViewTimezoneSelector } from '@/components/ViewTimezoneSelector';
@@ -66,30 +68,18 @@ export default function EventPage() {
   };
   
   if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-12">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading event...</p>
-        </div>
-      </div>
-    );
+    return <EventPageSkeleton />;
   }
   
   if (error || !event) {
     return (
-      <div className="container mx-auto px-4 py-12">
-        <Card className="max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-600">{error || 'Event not found'}</p>
-          <Button
-            className="mt-4"
-            onClick={() => window.location.href = '/'}
-          >
-            Go Home
-          </Button>
-        </Card>
-      </div>
+      <ErrorState
+        title="Event Not Found"
+        message={error || 'This event may have been deleted or the link is incorrect.'}
+        onRetry={refresh}
+        onGoHome={() => window.location.href = '/'}
+        errorCode={error ? 'EVENT_ERROR' : 'NOT_FOUND'}
+      />
     );
   }
 

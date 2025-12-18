@@ -1,4 +1,6 @@
 import { CreateEventForm } from '@/components/CreateEventForm';
+import { CreateEventFormSkeleton } from '@/components/SkeletonLoaders';
+import { Suspense } from 'react';
 
 export default function HomePage() {
   return (
@@ -12,7 +14,9 @@ export default function HomePage() {
         </p>
       </div>
       
-      <CreateEventForm />
+      <Suspense fallback={<CreateEventFormSkeleton />}>
+        <CreateEventForm />
+      </Suspense>
       
       <div className="mt-12 max-w-2xl mx-auto">
         <h2 className="text-2xl font-semibold mb-4 text-center">How it works</h2>
