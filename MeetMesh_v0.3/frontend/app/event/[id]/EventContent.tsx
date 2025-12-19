@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { EventPageSkeleton } from '@/components/SkeletonLoaders';
@@ -19,10 +18,11 @@ import { useAvailability } from '@/hooks/useAvailability';
 import { useMeetMeshStore } from '@/lib/store';
 import type { AvailabilityInterval, AvailabilityView, EventRecord } from '@/types';
 
-export default function EventPage() {
-  const params = useParams();
-  const eventId = params.eventId as string;
-  
+interface EventContentProps {
+  eventId: string;
+}
+
+export function EventContent({ eventId }: EventContentProps) {
   const [showUserModal, setShowUserModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [viewTimezone, setViewTimezone] = useState<string>('');
