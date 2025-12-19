@@ -113,11 +113,9 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      rgb(var(--background-start-rgb)),
-      rgb(var(--background-end-rgb))
-    );
+  background: radial-gradient(circle at 20% 20%, hsl(var(--muted) / 0.25), transparent 30%),
+    radial-gradient(circle at 80% 0%, hsl(var(--accent) / 0.2), transparent 28%),
+    linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background)));
 }
 
 /* Disable text selection during drag */
@@ -135,14 +133,22 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: hsl(var(--muted));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: hsl(var(--primary) / 0.35);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: hsl(var(--primary) / 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    --foreground-rgb: 226, 232, 240;
+    --background-start-rgb: 17, 24, 39;
+    --background-end-rgb: 17, 24, 39;
+  }
 }

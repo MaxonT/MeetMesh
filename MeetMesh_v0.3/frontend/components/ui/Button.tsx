@@ -13,16 +13,18 @@ export function Button({
   className,
   children,
   disabled,
+  type = 'button',
   ...props
 }: ButtonProps) {
-  const baseStyles = 'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
-  
+  const baseStyles = 'inline-flex items-center justify-center rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm';
+
   const variants = {
     primary: 'bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary',
     secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 focus:ring-secondary',
-    outline: 'border-2 border-border bg-background text-foreground hover:bg-accent focus:ring-accent',
+    outline: 'border border-border bg-background text-foreground hover:bg-accent focus:ring-accent',
     ghost: 'bg-transparent text-foreground hover:bg-accent focus:ring-accent',
     danger: 'bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive',
+    success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-600',
   };
   
   const sizes = {
@@ -35,6 +37,7 @@ export function Button({
     <button
       className={cn(baseStyles, variants[variant], sizes[size], className)}
       disabled={disabled}
+      type={type}
       {...props}
     >
       {children}
