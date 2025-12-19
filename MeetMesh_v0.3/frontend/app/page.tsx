@@ -1,17 +1,10 @@
 import { CreateEventForm } from '@/components/CreateEventForm';
 import { CreateEventFormSkeleton } from '@/components/SkeletonLoaders';
 import { Suspense } from 'react';
-import { ThemeToggle } from '@/components/ThemeToggle';
-import { BackgroundEffects } from '@/components/BackgroundEffects';
 
 export default function HomePage() {
   return (
-    <div className="relative min-h-screen dynamic-bg">
-      <BackgroundEffects />
-      <div className="fixed top-4 right-4 z-50">
-        <ThemeToggle />
-      </div>
-      <div className="relative z-10 container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-12">
       <div className="text-center mb-12">
         <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">
           MeetMesh
@@ -58,7 +51,6 @@ export default function HomePage() {
             </p>
           </div>
         </div>
-      </div>
       </div>
     </div>
   );
