@@ -95,25 +95,25 @@ export function EventContent({ eventId }: EventContentProps) {
     : availability;
   
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
       {/* Header */}
-      <Card className="mb-6">
-        <div className="flex items-start justify-between mb-4">
+      <Card className="mb-6 shadow-xl border-border/70 bg-card/90 backdrop-blur">
+        <div className="flex items-start justify-between mb-4 gap-4">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold mb-2">{event.eventName}</h1>
+            <h1 className="text-3xl font-bold mb-2 text-foreground leading-tight">{event.eventName}</h1>
             {event.description && (
-              <p className="text-gray-600">{event.description}</p>
+              <p className="text-muted-foreground leading-relaxed">{event.description}</p>
             )}
             {/* Timezone indicator */}
             <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-              <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-700">
+              <span className="inline-flex items-center px-2 py-1 rounded-md bg-muted text-foreground/80">
                 <svg className="w-4 h-4 mr-1" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                   <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Event: {event.timezone}
               </span>
               {isViewingDifferentTimezone && (
-                <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-100 text-blue-700">
+                <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                     <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
@@ -125,7 +125,7 @@ export function EventContent({ eventId }: EventContentProps) {
           </div>
           <button
             onClick={() => setShowSettings(!showSettings)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground border border-border/70"
             aria-label="Settings"
             title="Event Settings"
           >
@@ -138,16 +138,16 @@ export function EventContent({ eventId }: EventContentProps) {
         
         <div className="space-y-4">
           <ShareLink eventId={eventId} />
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <ViewTimezoneSelector
               eventTimezone={event.timezone}
               currentViewTimezone={viewTimezone || event.timezone}
               onTimezoneChange={handleTimezoneChange}
             />
-            
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground/80 mb-1">
                 Your Name
               </label>
               <div className="flex items-center gap-2">
@@ -155,7 +155,7 @@ export function EventContent({ eventId }: EventContentProps) {
                   type="text"
                   value={username || 'Anonymous'}
                   readOnly
-                  className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 cursor-default"
+                  className="flex-1 px-3 py-2 text-sm border border-input rounded-lg bg-muted/50 text-foreground cursor-default"
                 />
                 <Button
                   size="sm"
@@ -171,23 +171,23 @@ export function EventContent({ eventId }: EventContentProps) {
       </Card>
       
       {/* Time Grid */}
-      <Card className="mb-6 overflow-hidden" padding="none">
-        <div className="p-4 border-b bg-gray-50">
-          <h2 className="text-xl font-semibold">Select Your Availability</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Click and drag to select times when you&apos;re available
+      <Card className="mb-6 overflow-hidden border-border/70 shadow-xl" padding="none">
+        <div className="p-5 border-b bg-muted/50 dark:bg-slate-800/70">
+          <h2 className="text-xl font-semibold text-foreground">Select Your Availability</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Tap to pick a time, or long-press and drag to brush across multiple slots.
           </p>
           {isViewingDifferentTimezone && (
-            <p className="text-sm text-blue-600 mt-1 flex items-center gap-1">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <p className="text-sm text-blue-700 dark:text-blue-200 mt-1 flex items-center gap-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden>
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
               Times shown in {viewTimezone}
             </p>
           )}
         </div>
-        
-        <div className="p-4">
+
+        <div className="p-4 bg-card">
           <TimeGrid
             startDate={event.startDate}
             endDate={event.endDate}

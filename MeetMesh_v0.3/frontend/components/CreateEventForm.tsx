@@ -64,8 +64,8 @@ export function CreateEventForm() {
   };
   
   return (
-    <Card className="max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">Create New Event</h2>
+    <Card className="max-w-2xl mx-auto shadow-xl border-border/70 bg-card/90 backdrop-blur">
+      <h2 className="text-2xl font-bold mb-6 text-foreground">Create New Event</h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
@@ -78,7 +78,7 @@ export function CreateEventForm() {
         />
         
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="description" className="block text-sm font-medium text-foreground/80 mb-1">
             Description (optional)
           </label>
           <textarea
@@ -88,7 +88,7 @@ export function CreateEventForm() {
             onChange={handleChange}
             placeholder="What's this event about?"
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground shadow-sm"
           />
         </div>
         

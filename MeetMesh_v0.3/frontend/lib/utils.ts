@@ -100,20 +100,22 @@ export function getAvailabilityColor(
   isUserAvailable: boolean
 ): string {
   if (totalParticipants === 0) {
-    return isUserAvailable ? 'bg-blue-500' : 'bg-gray-50';
+    return isUserAvailable
+      ? 'bg-blue-500/80 dark:bg-blue-500/60'
+      : 'bg-muted dark:bg-slate-800';
   }
-  
+
   if (isUserAvailable && availableCount === 1) {
-    return 'bg-blue-500';
+    return 'bg-blue-500/90 dark:bg-blue-500/80';
   }
-  
+
   const ratio = availableCount / totalParticipants;
-  
-  if (ratio === 0) return 'bg-gray-50';
-  if (ratio <= 0.25) return 'bg-blue-100';
-  if (ratio <= 0.5) return 'bg-blue-300';
-  if (ratio <= 0.75) return 'bg-blue-500';
-  return 'bg-blue-700';
+
+  if (ratio === 0) return 'bg-muted dark:bg-slate-800';
+  if (ratio <= 0.25) return 'bg-blue-100 dark:bg-blue-900/50';
+  if (ratio <= 0.5) return 'bg-blue-300 dark:bg-blue-800/70';
+  if (ratio <= 0.75) return 'bg-blue-500 dark:bg-blue-700';
+  return 'bg-blue-700 dark:bg-blue-600';
 }
 
 /**
