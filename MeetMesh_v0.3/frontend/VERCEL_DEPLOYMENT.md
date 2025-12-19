@@ -2,7 +2,18 @@
 
 ## 🚀 Quick Deployment Steps
 
-### 1. Environment Variables Setup
+### 1. Vercel Project Settings
+
+**CRITICAL**: Configure your Vercel project with these settings:
+
+1. **Root Directory**: `MeetMesh_v0.3/frontend`
+2. **Framework Preset**: Next.js
+3. **Build Command**: Uses `vercel.json` configuration (`npm run build`)
+4. **Install Command**: Uses `vercel.json` configuration (`npm install`)
+5. **Output Directory**: `.next`
+6. **Node.js Version**: 20.x (recommended)
+
+### 2. Environment Variables Setup
 In your Vercel dashboard, set these environment variables:
 
 ```
@@ -14,7 +25,7 @@ NEXT_PUBLIC_API_URL=https://your-backend-api-url.com
 - ✅ Has CORS enabled for your Vercel domain
 - ✅ Using HTTPS (recommended for production)
 
-### 2. Build Configuration
+### 3. Build Configuration
 The project includes a `vercel.json` file with proper configuration:
 
 ```json
@@ -26,10 +37,37 @@ The project includes a `vercel.json` file with proper configuration:
 }
 ```
 
-### 3. TypeScript Configuration Fix
-**⚠️ CRITICAL**: The `tsconfig.json` has been updated to be self-contained and no longer depends on the monorepo packages structure. This fixes the Vercel build error.
+**Why explicit `installCommand`?**: This prevents Vercel from detecting the parent monorepo structure and attempting to use pnpm/turbo.
 
-### 4. Common Issues & Solutions
+### 4. Monorepo Configuration Fix
+**⚠️ CRITICAL**: The `.vercelignore` file at the repository root excludes the monorepo configuration to prevent Vercel from detecting pnpm workspace:
+
+```
+MeetMesh_v0.3/pnpm-workspace.yaml
+MeetMesh_v0.3/turbo.json
+MeetMesh_v0.3/packages/
+```
+
+This ensures Vercel uses npm (as specified in `vercel.json`) instead of trying to use pnpm.
+
+### 5. Package Dependencies Fix
+**⚠️ CRITICAL**: The `package.json` no longer references the local `@meetmesh/tsconfig` package. This dependency was removed because:
+- It referenced a local file path (`file:../../packages/tsconfig`)
+- This path doesn't exist in the Vercel build environment
+- The `tsconfig.json` is already self-contained and doesn't need it
+
+### 6. Common Issues & Solutions
+
+#### ❌ Build Fails: "ERR_PNPM_LINKING_FAILED" or pnpm-related errors
+**Solution**: ✅ FIXED
+- Removed monorepo workspace detection by excluding `pnpm-workspace.yaml` via `.vercelignore`
+- Added explicit `installCommand: "npm install"` in `vercel.json`
+- This forces Vercel to use npm instead of detecting and trying to use pnpm
+
+#### ❌ Build Fails: Cannot find module '@meetmesh/tsconfig'
+**Solution**: ✅ FIXED
+- Removed the `@meetmesh/tsconfig` dependency from `package.json`
+- This dependency referenced a local file that doesn't exist in Vercel's build environment
 
 #### ❌ Build Fails with TypeScript Errors
 **Solution**: 
@@ -38,14 +76,13 @@ The project includes a `vercel.json` file with proper configuration:
 - Fix any `any` type usage
 
 #### ❌ Cannot read file '/vercel/path0/MeetMesh_v0.3/packages/tsconfig/base.json'
-**Solution**: ✅ FIXED - Updated `tsconfig.json` to be self-contained
+**Solution**: ✅ FIXED - The `tsconfig.json` is self-contained
 
 **Root Cause**: The `tsconfig.json` was extending from a monorepo package structure (`packages/tsconfig/base.json`) that doesn't exist in the Vercel build environment.
 
 **Fix Applied**:
-1. Updated `frontend/tsconfig.json` to extend from `./tsconfig.base.json` instead of the monorepo path
-2. Created a local `tsconfig.base.json` in the frontend directory
-3. This makes the TypeScript configuration self-contained and independent of the monorepo structure
+1. The `frontend/tsconfig.json` is now self-contained and doesn't extend from external files
+2. This makes the TypeScript configuration independent of the monorepo structure
 
 **Prevention**: Always ensure your `tsconfig.json` doesn't depend on external monorepo packages when deploying to Vercel.
 
