@@ -4,6 +4,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import type { AvailabilityInterval, AvailabilityView } from '@/types';
 import { generateTimeBlocks, generateDateRange, formatDate, formatTime12Hour, getAvailabilityColor } from '@/lib/utils';
 import { Tooltip } from './ui/Tooltip';
+import { Button } from './ui/Button';
 import { useMeetMeshStore } from '@/lib/store';
 import { BLOCK_MINUTES } from '@/lib/constants';
 
@@ -35,8 +36,7 @@ export function TimeGrid({
   const dates = useMemo(() => generateDateRange(startDate, endDate), [startDate, endDate]);
   const timeBlocks = useMemo(() => generateTimeBlocks(startTime, endTime), [startTime, endTime]);
   
-  // Initialize selected blocks from myAvailability
-  React.useEffect(() => {
+  const initialBlocks = useMemo(() => {
     const blocks = new Set<string>();
     myAvailability.forEach((interval) => {
       const intervalTimes = generateTimeBlocks(interval.startTime, interval.endTime);
@@ -44,8 +44,21 @@ export function TimeGrid({
         blocks.add(`${interval.date}_${time}`);
       });
     });
-    setSelectedBlocks(blocks);
+    return blocks;
   }, [myAvailability]);
+
+  // Sync state when props change
+  React.useEffect(() => {
+    setSelectedBlocks(initialBlocks);
+  }, [initialBlocks]);
+
+  const isDirty = useMemo(() => {
+    if (selectedBlocks.size !== initialBlocks.size) return true;
+    for (const block of selectedBlocks) {
+      if (!initialBlocks.has(block)) return true;
+    }
+    return false;
+  }, [selectedBlocks, initialBlocks]);
   
   const getBlockKey = (date: string, time: string) => `${date}_${time}`;
   
@@ -93,7 +106,6 @@ export function TimeGrid({
   const handleMouseUp = () => {
     if (dragState.isDragging) {
       resetDragState();
-      saveAvailability();
     }
   };
   
@@ -112,6 +124,14 @@ export function TimeGrid({
     });
   };
   
+  const handleSave = () => {
+    saveAvailability();
+  };
+
+  const handleReset = () => {
+    setSelectedBlocks(initialBlocks);
+  };
+
   const saveAvailability = useCallback(() => {
     // Convert selected blocks to intervals
     const intervals: AvailabilityInterval[] = [];
@@ -180,16 +200,16 @@ export function TimeGrid({
     const handleGlobalMouseUp = () => {
       if (dragState.isDragging) {
         resetDragState();
-        saveAvailability();
       }
     };
     
     document.addEventListener('mouseup', handleGlobalMouseUp);
     return () => document.removeEventListener('mouseup', handleGlobalMouseUp);
-  }, [dragState.isDragging, resetDragState, saveAvailability]);
+  }, [dragState.isDragging, resetDragState]);
   
   return (
-    <div className="overflow-x-auto">
+    <div className="space-y-4">
+      <div className="overflow-x-auto">
       <div className="inline-block min-w-full">
         <div className="grid" style={{ gridTemplateColumns: `80px repeat(${dates.length}, minmax(80px, 1fr))` }}>
           {/* Header row */}
@@ -245,5 +265,27 @@ export function TimeGrid({
         </div>
       </div>
     </div>
+    
+    {/* Actions */}
+    <div className={`flex items-center justify-end gap-3 transition-opacity duration-200 ${isDirty ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleReset}
+        disabled={!isDirty}
+      >
+        Discard Changes
+      </Button>
+      <Button
+        variant="primary"
+        size="sm"
+        onClick={handleSave}
+        disabled={!isDirty}
+        className="min-w-[120px]"
+      >
+        Save Availability
+      </Button>
+    </div>
+  </div>
   );
 }
