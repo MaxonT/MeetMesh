@@ -22,7 +22,7 @@ export function UserNameModal({ isOpen, onSubmit, initialUsername = '' }: UserNa
   return (
     <Modal isOpen={isOpen} onClose={() => {}} title="Welcome to MeetMesh" showCloseButton={false}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Enter your name to get started. This will help others identify your availability.
         </p>
         
