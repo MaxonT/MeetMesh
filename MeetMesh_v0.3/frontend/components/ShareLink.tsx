@@ -29,7 +29,7 @@ export function ShareLink({ eventId }: ShareLinkProps) {
         type="text"
         value={shareUrl}
         readOnly
-        className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 cursor-default"
+        className="flex-1 px-3 py-2 text-sm border border-input rounded-lg bg-muted text-foreground cursor-default focus:outline-none"
         onClick={(e) => e.currentTarget.select()}
       />
       <Button onClick={handleCopy} size="sm" variant={copied ? 'secondary' : 'primary'}>
