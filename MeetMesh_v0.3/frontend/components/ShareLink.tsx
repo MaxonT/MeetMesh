@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { Button } from './ui/Button';
-import { copyToClipboard } from '@/lib/utils';
 
 interface ShareLinkProps {
   eventId: string;
