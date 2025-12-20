@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import type { AvailabilityInterval, AvailabilityView } from '@/types';
 import { generateTimeBlocks, generateDateRange, formatDate, formatTime12Hour, getAvailabilityColor } from '@/lib/utils';
 import { Tooltip } from './ui/Tooltip';
 import { Button } from './ui/Button';
-import { useMeetMeshStore } from '@/lib/store';
 import { BLOCK_MINUTES } from '@/lib/constants';
 
 interface TimeGridProps {
@@ -18,6 +17,7 @@ interface TimeGridProps {
   onAvailabilityChange: (intervals: AvailabilityInterval[]) => void;
   totalParticipants: number;
   currentUserId?: string | null;
+  isSaving?: boolean;
 }
 
 export function TimeGrid({
@@ -29,10 +29,26 @@ export function TimeGrid({
   myAvailability,
   onAvailabilityChange,
   totalParticipants,
+  isSaving = false,
 }: TimeGridProps) {
-  const { dragState, setDragState, resetDragState } = useMeetMeshStore();
   const [selectedBlocks, setSelectedBlocks] = useState<Set<string>>(new Set());
   
+  // Refs for drag handling
+  const dragSurfaceRef = useRef<HTMLDivElement>(null);
+  const dragState = useRef<{
+    isDragging: boolean;
+    startX: number;
+    startY: number;
+    mode: 'select' | 'deselect' | null;
+    startBlock: string | null;
+  }>({
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    mode: null,
+    startBlock: null,
+  });
+
   const dates = useMemo(() => generateDateRange(startDate, endDate), [startDate, endDate]);
   const timeBlocks = useMemo(() => generateTimeBlocks(startTime, endTime), [startTime, endTime]);
   
@@ -84,31 +100,6 @@ export function TimeGrid({
     return { count, availableUsers };
   };
   
-  const handleMouseDown = (date: string, time: string) => {
-    const isSelected = isBlockSelected(date, time);
-    const mode = isSelected ? 'deselect' : 'select';
-    
-    setDragState({
-      isDragging: true,
-      dragStartBlock: { date, time },
-      dragMode: mode,
-    });
-    
-    toggleBlock(date, time, mode);
-  };
-  
-  const handleMouseEnter = (date: string, time: string) => {
-    if (dragState.isDragging && dragState.dragMode) {
-      toggleBlock(date, time, dragState.dragMode);
-    }
-  };
-  
-  const handleMouseUp = () => {
-    if (dragState.isDragging) {
-      resetDragState();
-    }
-  };
-  
   const toggleBlock = (date: string, time: string, mode: 'select' | 'deselect') => {
     setSelectedBlocks((prev) => {
       const newSet = new Set(prev);
@@ -123,9 +114,108 @@ export function TimeGrid({
       return newSet;
     });
   };
+
+  // Pointer Events Logic
+  const handlePointerDown = (e: React.PointerEvent) => {
+    // Only handle left click
+    if (e.button !== 0) return;
+    
+    // Prevent default to avoid text selection etc.
+    e.preventDefault();
+    
+    const target = e.target as HTMLElement;
+    // Find the closest cell
+    const cell = target.closest('[data-date]');
+    if (!cell) return;
+    
+    const date = cell.getAttribute('data-date');
+    const time = cell.getAttribute('data-time');
+    
+    if (!date || !time) return;
+    
+    // Initialize drag state
+    const isSelected = isBlockSelected(date, time);
+    dragState.current = {
+      isDragging: false,
+      startX: e.clientX,
+      startY: e.clientY,
+      mode: isSelected ? 'deselect' : 'select',
+      startBlock: getBlockKey(date, time),
+    };
+    
+    // Set pointer capture on the DragSurface (container)
+    if (dragSurfaceRef.current) {
+      dragSurfaceRef.current.setPointerCapture(e.pointerId);
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!dragSurfaceRef.current?.hasPointerCapture(e.pointerId)) return;
+    
+    // Check threshold for drag
+    if (!dragState.current.isDragging) {
+      const dx = e.clientX - dragState.current.startX;
+      const dy = e.clientY - dragState.current.startY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      
+      if (dist > 5) { // 5px threshold
+        dragState.current.isDragging = true;
+        // Apply the initial toggle when drag starts
+        if (dragState.current.startBlock && dragState.current.mode) {
+           const [d, t] = dragState.current.startBlock.split('_');
+           toggleBlock(d, t, dragState.current.mode);
+        }
+      }
+    }
+    
+    if (dragState.current.isDragging && dragState.current.mode) {
+      // Find element under pointer
+      const element = document.elementFromPoint(e.clientX, e.clientY);
+      const cell = element?.closest('[data-date]');
+      
+      if (cell) {
+        const date = cell.getAttribute('data-date');
+        const time = cell.getAttribute('data-time');
+        
+        if (date && time) {
+          // Check if we need to toggle this block
+          const isSelected = isBlockSelected(date, time);
+          if ((dragState.current.mode === 'select' && !isSelected) || 
+              (dragState.current.mode === 'deselect' && isSelected)) {
+            toggleBlock(date, time, dragState.current.mode);
+          }
+        }
+      }
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (dragSurfaceRef.current?.hasPointerCapture(e.pointerId)) {
+      dragSurfaceRef.current.releasePointerCapture(e.pointerId);
+    }
+    
+    // If it was just a click (no drag), toggle the start block
+    if (!dragState.current.isDragging && dragState.current.startBlock && dragState.current.mode) {
+      const [date, time] = dragState.current.startBlock.split('_');
+      toggleBlock(date, time, dragState.current.mode);
+    }
+    
+    // Reset state
+    dragState.current = {
+      isDragging: false,
+      startX: 0,
+      startY: 0,
+      mode: null,
+      startBlock: null,
+    };
+  };
   
-  const handleSave = () => {
-    saveAvailability();
+  const handleSave = async () => {
+    try {
+      await saveAvailability();
+    } catch (error) {
+      console.error('Failed to save availability:', error);
+    }
   };
 
   const handleReset = () => {
@@ -196,30 +286,27 @@ export function TimeGrid({
     onAvailabilityChange(intervals);
   }, [selectedBlocks, onAvailabilityChange]);
   
-  React.useEffect(() => {
-    const handleGlobalMouseUp = () => {
-      if (dragState.isDragging) {
-        resetDragState();
-      }
-    };
-    
-    document.addEventListener('mouseup', handleGlobalMouseUp);
-    return () => document.removeEventListener('mouseup', handleGlobalMouseUp);
-  }, [dragState.isDragging, resetDragState]);
-  
   return (
     <div className="space-y-4">
-      <div className="overflow-x-auto">
+      {/* DragSurface: Physical isolation for drag interactions */}
+      <div 
+        ref={dragSurfaceRef}
+        className="overflow-x-auto select-none touch-none"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+      >
       <div className="inline-block min-w-full">
         <div className="grid" style={{ gridTemplateColumns: `80px repeat(${dates.length}, minmax(80px, 1fr))` }}>
           {/* Header row */}
-          <div className="sticky left-0 bg-background z-10 border-b border-r border-border p-2">
+          <div className="sticky left-0 bg-background z-10 border-b border-r border-border p-2 pointer-events-none">
             <span className="text-xs font-semibold text-muted-foreground">Time</span>
           </div>
           {dates.map((date) => (
             <div
               key={date}
-              className="border-b border-r border-border p-2 text-center bg-muted/30"
+              className="border-b border-r border-border p-2 text-center bg-muted/30 pointer-events-none"
             >
               <div className="text-xs font-semibold text-foreground">
                 {formatDate(date)}
@@ -230,7 +317,7 @@ export function TimeGrid({
           {/* Time rows */}
           {timeBlocks.map((time) => (
             <React.Fragment key={time}>
-              <div className="sticky left-0 bg-background z-10 border-r border-b border-border p-2">
+              <div className="sticky left-0 bg-background z-10 border-r border-b border-border p-2 pointer-events-none">
                 <span className="text-xs text-muted-foreground">{formatTime12Hour(time)}</span>
               </div>
               {dates.map((date) => {
@@ -250,12 +337,11 @@ export function TimeGrid({
                     }
                   >
                     <div
-                      className={`border-r border-b border-border h-8 cursor-pointer transition-colors select-none ${bgColor} ${
+                      data-date={date}
+                      data-time={time}
+                      className={`border-r border-b border-border h-8 cursor-pointer transition-colors ${bgColor} ${
                         isSelected ? 'ring-2 ring-inset ring-primary' : ''
                       }`}
-                      onMouseDown={() => handleMouseDown(date, time)}
-                      onMouseEnter={() => handleMouseEnter(date, time)}
-                      onMouseUp={handleMouseUp}
                     />
                   </Tooltip>
                 );
@@ -266,13 +352,13 @@ export function TimeGrid({
       </div>
     </div>
     
-    {/* Actions */}
-    <div className={`flex items-center justify-end gap-3 transition-opacity duration-200 ${isDirty ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+    {/* ActionsBar: Physically separated from drag surface */}
+    <div className={`flex items-center justify-end gap-3 transition-opacity duration-200 ${isDirty ? 'opacity-100' : 'opacity-50'}`}>
       <Button
         variant="ghost"
         size="sm"
         onClick={handleReset}
-        disabled={!isDirty}
+        disabled={!isDirty || isSaving}
       >
         Discard Changes
       </Button>
@@ -280,10 +366,10 @@ export function TimeGrid({
         variant="primary"
         size="sm"
         onClick={handleSave}
-        disabled={!isDirty}
+        disabled={!isDirty || isSaving}
         className="min-w-[120px]"
       >
-        Save Availability
+        {isSaving ? 'Saving...' : 'Save Availability'}
       </Button>
     </div>
   </div>

@@ -29,7 +29,7 @@ export function EventContent({ eventId }: EventContentProps) {
   
   const { userId, username, initializeUser, isInitialized } = useUser(eventId);
   const { event, participants, availability, isLoading, error, refresh } = useEvent(eventId, viewTimezone || undefined);
-  const { availability: myAvailability, saveAvailability } = useAvailability(eventId);
+  const { availability: myAvailability, saveAvailability, isSaving } = useAvailability(eventId);
   const { updateEvent } = useMeetMeshStore();
   
   // Initialize viewTimezone to event timezone
@@ -198,6 +198,7 @@ export function EventContent({ eventId }: EventContentProps) {
             onAvailabilityChange={handleAvailabilityChange}
             totalParticipants={participants.length}
             currentUserId={userId}
+            isSaving={isSaving}
           />
         </div>
       </Card>

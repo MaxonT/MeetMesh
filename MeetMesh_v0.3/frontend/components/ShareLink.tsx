@@ -16,10 +16,28 @@ export function ShareLink({ eventId }: ShareLinkProps) {
     : '';
   
   const handleCopy = async () => {
-    const success = await copyToClipboard(shareUrl);
-    if (success) {
-      setCopied(true);
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = shareUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        setCopied(true);
+      }
       setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      // Fallback: select the text so user can copy manually
+      const input = document.querySelector('input[readonly]') as HTMLInputElement;
+      if (input) {
+        input.select();
+        input.focus();
+      }
     }
   };
   
