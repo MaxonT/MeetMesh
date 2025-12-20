@@ -315,15 +315,15 @@ export function OptimizedTimeGrid({
           }}
         >
           {/* 表头行 */}
-          <div className="sticky left-0 bg-white z-20 border-b border-r border-gray-300 p-2">
-            <span className="text-xs font-semibold text-gray-600">Time</span>
+          <div className="sticky left-0 bg-background z-20 border-b border-r border-border p-2">
+            <span className="text-xs font-semibold text-muted-foreground">Time</span>
           </div>
           {dates.map((date) => (
             <div
               key={date}
-              className="border-b border-r border-gray-300 p-2 text-center bg-gray-50 sticky top-0 z-10"
+              className="border-b border-r border-border p-2 text-center bg-muted/30 sticky top-0 z-10"
             >
-              <div className="text-xs font-semibold text-gray-700">
+              <div className="text-xs font-semibold text-foreground">
                 {formatDate(date)}
               </div>
             </div>
@@ -332,8 +332,8 @@ export function OptimizedTimeGrid({
           {/* 可见的时间行 */}
           {visibleTimeBlocks.map((time) => (
               <React.Fragment key={time}>
-                <div className="sticky left-0 bg-white z-10 border-r border-b border-gray-200 p-2">
-                  <span className="text-xs text-gray-600">{formatTime12Hour(time)}</span>
+                <div className="sticky left-0 bg-background z-10 border-r border-b border-border p-2">
+                  <span className="text-xs text-muted-foreground">{formatTime12Hour(time)}</span>
                 </div>
                 {dates.map((date) => {
                   const { count, availableUsers } = getAvailabilityForBlock(date, time);
@@ -352,8 +352,8 @@ export function OptimizedTimeGrid({
                       }
                     >
                       <div
-                        className={`border-r border-b border-gray-200 h-8 cursor-pointer transition-colors select-none ${bgColor} ${
-                          isSelected ? 'ring-2 ring-inset ring-blue-600' : ''
+                        className={`border-r border-b border-border h-8 cursor-pointer transition-colors select-none ${bgColor} ${
+                          isSelected ? 'ring-2 ring-inset ring-primary' : ''
                         }`}
                         onMouseDown={() => handleMouseDown(date, time)}
                         onMouseEnter={() => handleMouseEnter(date, time)}

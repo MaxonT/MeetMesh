@@ -122,9 +122,9 @@ export function SmartTimezoneSelector({
 
           {/* 建议时区 */}
           {!searchTerm && (
-            <div className="p-3 border-b bg-gray-50">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Quick Select</h3>
-              <div className="space-y-1">
+            <div className="p-3 border-b bg-muted/30">
+            <h3 className="text-sm font-medium text-foreground mb-2">Quick Select</h3>
+            <div className="space-y-1">
                 {suggestedTimezones.map((suggestion) => {
                   const display = getCurrentTimeDisplay(suggestion.timezone);
                   const isSelected = suggestion.timezone === currentViewTimezone;

@@ -49,7 +49,7 @@ export function ThemeToggle() {
           </svg>
         </div>
         <span className="hidden sm:inline text-sm font-medium">
-          {theme === 'light' ? '深色' : '浅色'}
+          {theme === 'light' ? 'Dark' : 'Light'}
         </span>
       </div>
     </Button>
