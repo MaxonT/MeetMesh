@@ -16,7 +16,7 @@ export function ParticipantList({
   if (participants.length === 0) {
     return (
       <Card>
-        <p className="text-sm text-gray-500">No participants yet</p>
+        <p className="text-sm text-muted-foreground">No participants yet</p>
       </Card>
     );
   }
@@ -47,7 +47,7 @@ export function ParticipantList({
             >
               <div className="flex items-center gap-2 min-w-0 flex-1">
                 <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                  hasAvailability ? 'bg-green-500' : 'bg-gray-300'
+                  hasAvailability ? 'bg-green-500' : 'bg-muted'
                 }`} />
                 <span className={`text-sm truncate ${
                   participant.userId === currentUserId ? 'font-semibold' : ''
@@ -60,15 +60,15 @@ export function ParticipantList({
               {availability && (
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <div className="text-right">
-                    <div className="text-xs font-medium text-gray-900">
+                    <div className="text-xs font-medium text-foreground">
                       {availability.availabilityPct}%
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-muted-foreground">
                       {availability.availableBlocks} blocks
                     </div>
                   </div>
                   {/* Progress bar */}
-                  <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="w-16 h-2 bg-secondary rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all"
                       style={{ width: `${availability.availabilityPct}%` }}

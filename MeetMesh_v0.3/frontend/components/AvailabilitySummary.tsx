@@ -14,7 +14,7 @@ export function AvailabilitySummaryComponent({ summary, totalParticipants }: Ava
   if (totalParticipants === 0) {
     return (
       <Card>
-        <p className="text-sm text-gray-500">No availability data yet</p>
+        <p className="text-sm text-muted-foreground">No availability data yet</p>
       </Card>
     );
   }
@@ -32,12 +32,12 @@ export function AvailabilitySummaryComponent({ summary, totalParticipants }: Ava
         {/* Best Times */}
         {bestBlocks.length > 0 && (
           <div>
-            <h4 className="text-sm font-semibold text-gray-700 mb-1">
+            <h4 className="text-sm font-semibold text-foreground mb-1">
               🎯 Best Times
             </h4>
             <ul className="space-y-1">
               {bestBlocks.slice(0, 5).map((block, idx) => (
-                <li key={idx} className="text-sm text-gray-600">
+                <li key={idx} className="text-sm text-muted-foreground">
                   {formatDate(block.date)} at {formatTime12Hour(block.time)} ({block.count}/{totalParticipants} people)
                 </li>
               ))}
@@ -48,12 +48,12 @@ export function AvailabilitySummaryComponent({ summary, totalParticipants }: Ava
         {/* Everyone Available */}
         {everyoneBlocks.length > 0 && (
           <div>
-            <h4 className="text-sm font-semibold text-gray-700 mb-1">
+            <h4 className="text-sm font-semibold text-foreground mb-1">
               ✅ Everyone Available
             </h4>
             <ul className="space-y-1">
               {everyoneBlocks.slice(0, 5).map((block, idx) => (
-                <li key={idx} className="text-sm text-gray-600">
+                <li key={idx} className="text-sm text-muted-foreground">
                   {formatDate(block.date)} at {formatTime12Hour(block.time)}
                 </li>
               ))}
@@ -64,17 +64,17 @@ export function AvailabilitySummaryComponent({ summary, totalParticipants }: Ava
         {/* Most Available Day */}
         {mostAvailableDay && (
           <div>
-            <h4 className="text-sm font-semibold text-gray-700 mb-1">
+            <h4 className="text-sm font-semibold text-foreground mb-1">
               📅 Best Day
             </h4>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               {formatDate(mostAvailableDay.date)} ({mostAvailableDay.total} total slots available)
             </p>
           </div>
         )}
         
         {bestBlocks.length === 0 && everyoneBlocks.length === 0 && !mostAvailableDay && (
-          <p className="text-sm text-gray-500">No overlapping availability yet</p>
+          <p className="text-sm text-muted-foreground">No overlapping availability yet</p>
         )}
       </div>
     </Card>

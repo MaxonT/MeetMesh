@@ -193,15 +193,15 @@ export function TimeGrid({
       <div className="inline-block min-w-full">
         <div className="grid" style={{ gridTemplateColumns: `80px repeat(${dates.length}, minmax(80px, 1fr))` }}>
           {/* Header row */}
-          <div className="sticky left-0 bg-white z-10 border-b border-r border-gray-300 p-2">
-            <span className="text-xs font-semibold text-gray-600">Time</span>
+          <div className="sticky left-0 bg-background z-10 border-b border-r border-border p-2">
+            <span className="text-xs font-semibold text-muted-foreground">Time</span>
           </div>
           {dates.map((date) => (
             <div
               key={date}
-              className="border-b border-r border-gray-300 p-2 text-center bg-gray-50"
+              className="border-b border-r border-border p-2 text-center bg-muted/30"
             >
-              <div className="text-xs font-semibold text-gray-700">
+              <div className="text-xs font-semibold text-foreground">
                 {formatDate(date)}
               </div>
             </div>
@@ -210,8 +210,8 @@ export function TimeGrid({
           {/* Time rows */}
           {timeBlocks.map((time) => (
             <React.Fragment key={time}>
-              <div className="sticky left-0 bg-white z-10 border-r border-b border-gray-200 p-2">
-                <span className="text-xs text-gray-600">{formatTime12Hour(time)}</span>
+              <div className="sticky left-0 bg-background z-10 border-r border-b border-border p-2">
+                <span className="text-xs text-muted-foreground">{formatTime12Hour(time)}</span>
               </div>
               {dates.map((date) => {
                 const { count, availableUsers } = getAvailabilityForBlock(date, time);
@@ -230,8 +230,8 @@ export function TimeGrid({
                     }
                   >
                     <div
-                      className={`border-r border-b border-gray-200 h-8 cursor-pointer transition-colors select-none ${bgColor} ${
-                        isSelected ? 'ring-2 ring-inset ring-blue-600' : ''
+                      className={`border-r border-b border-border h-8 cursor-pointer transition-colors select-none ${bgColor} ${
+                        isSelected ? 'ring-2 ring-inset ring-primary' : ''
                       }`}
                       onMouseDown={() => handleMouseDown(date, time)}
                       onMouseEnter={() => handleMouseEnter(date, time)}
