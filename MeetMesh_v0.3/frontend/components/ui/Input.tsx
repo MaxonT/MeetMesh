@@ -11,10 +11,22 @@ export function Input({
   error,
   className,
   id,
+  type,
+  placeholder,
+  lang,
   ...props
 }: InputProps) {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
-  
+
+  const isDateOrTime = type === 'date' || type === 'time';
+  const resolvedPlaceholder = placeholder
+    ?? (type === 'date'
+      ? 'YYYY-MM-DD'
+      : type === 'time'
+        ? 'HH:MM'
+        : undefined);
+  const resolvedLang = isDateOrTime ? lang ?? 'en' : lang;
+
   return (
     <div className="w-full">
       {label && (
@@ -33,6 +45,9 @@ export function Input({
           error && 'border-destructive focus:ring-destructive',
           className
         )}
+        type={type}
+        placeholder={resolvedPlaceholder}
+        lang={resolvedLang}
         {...props}
       />
       {error && (
