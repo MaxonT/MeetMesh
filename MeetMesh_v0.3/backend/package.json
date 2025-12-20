@@ -16,7 +16,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@meetmesh/tsconfig": "file:../../packages/tsconfig",
+    "@meetmesh/tsconfig": "file:../packages/tsconfig",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/luxon": "^3.3.7",
