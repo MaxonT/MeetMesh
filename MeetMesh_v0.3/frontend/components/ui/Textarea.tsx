@@ -1,35 +1,34 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
 }
 
-export function Input({
+export function Textarea({
   label,
   error,
   className,
   id,
   ...props
-}: InputProps) {
-  const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
+}: TextareaProps) {
+  const textareaId = id || label?.toLowerCase().replace(/\s+/g, '-');
   
   return (
     <div className="w-full">
       {label && (
         <label
-          htmlFor={inputId}
+          htmlFor={textareaId}
           className="block text-sm font-medium text-foreground mb-1"
         >
           {label}
         </label>
       )}
-      <input
-        id={inputId}
+      <textarea
+        id={textareaId}
         className={cn(
-          'w-full px-3 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-input bg-background text-foreground placeholder:text-muted-foreground transition-colors duration-200',
-          'file:border-0 file:bg-transparent file:text-sm file:font-medium',
+          'w-full px-3 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-input bg-background text-foreground placeholder:text-muted-foreground transition-colors duration-200 min-h-[80px]',
           error && 'border-destructive focus:ring-destructive',
           className
         )}

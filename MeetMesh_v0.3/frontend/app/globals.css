@@ -53,6 +53,9 @@
   * {
     @apply border-border;
   }
+  html {
+    color-scheme: light dark;
+  }
   body {
     @apply bg-background text-foreground;
   }
@@ -105,21 +108,6 @@
   100% { transform: translate(50px, 50px); }
 }
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 249, 250, 251;
-  --background-end-rgb: 255, 255, 255;
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      rgb(var(--background-start-rgb)),
-      rgb(var(--background-end-rgb))
-    );
-}
-
 /* Disable text selection during drag */
 .select-none {
   -webkit-user-select: none;
@@ -135,14 +123,14 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: hsl(var(--secondary));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: hsl(var(--muted-foreground) / 0.5);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: hsl(var(--muted-foreground));
 }
