@@ -65,7 +65,15 @@ export function CreateEventForm() {
   };
   
   return (
-    <Card className="max-w-2xl mx-auto">
+    <Card className="max-w-2xl mx-auto relative overflow-hidden">
+      {isSubmitting && (
+        <div className="absolute inset-0 bg-white/50 dark:bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="font-medium text-primary">Creating your event...</p>
+          </div>
+        </div>
+      )}
       <h2 className="text-2xl font-bold mb-6">Create New Event</h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
