@@ -31,12 +31,13 @@ export function Input({
 
   const handleIconClick = () => {
     try {
-      if (inputRef.current && 'showPicker' in inputRef.current) {
-        (inputRef.current as any).showPicker();
+      const input = inputRef.current;
+      if (input && typeof (input as HTMLInputElement & { showPicker: () => void }).showPicker === 'function') {
+        (input as HTMLInputElement & { showPicker: () => void }).showPicker();
       } else {
-        inputRef.current?.focus();
+        input?.focus();
       }
-    } catch (e) {
+    } catch {
       // Fallback for browsers that don't support showPicker or throw errors
       inputRef.current?.focus();
     }
