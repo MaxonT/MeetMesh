@@ -229,6 +229,7 @@ export function EventContent({ eventId }: EventContentProps) {
         isOpen={showUserModal}
         onSubmit={handleUserSubmit}
         initialUsername={username || ''}
+        onCancel={isInitialized ? () => setShowUserModal(false) : undefined}
       />
 
       {/* Event Settings Modal */}
