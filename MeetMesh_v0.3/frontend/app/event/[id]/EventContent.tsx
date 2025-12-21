@@ -202,7 +202,6 @@ export function EventContent({ eventId }: EventContentProps) {
           />
         </div>
       </Card>
-      </Card>
       
       {/* Summary and Participants */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
