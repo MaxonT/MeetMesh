@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import type { AvailabilityInterval, AvailabilityView } from '@/types';
-import { generateTimeBlocks, generateDateRange, formatDate, formatTime12Hour, getAvailabilityColor } from '@/lib/utils';
+import { generateTimeBlocks, generateDateRange, formatDate, formatTime12Hour, getUniquePrefixes, cn } from '@/lib/utils';
 import { Tooltip } from './ui/Tooltip';
 import { Button } from './ui/Button';
 import { BLOCK_MINUTES } from '@/lib/constants';
@@ -15,7 +15,7 @@ interface TimeGridProps {
   availability: AvailabilityView | null;
   myAvailability: AvailabilityInterval[];
   onAvailabilityChange: (intervals: AvailabilityInterval[]) => void;
-  totalParticipants: number;
+  participants: { username?: string | null }[];
   currentUserId?: string | null;
   isSaving?: boolean;
 }
@@ -28,7 +28,7 @@ export function TimeGrid({
   availability,
   myAvailability,
   onAvailabilityChange,
-  totalParticipants,
+  participants,
   isSaving = false,
 }: TimeGridProps) {
   const [selectedBlocks, setSelectedBlocks] = useState<Set<string>>(new Set());
@@ -52,6 +52,14 @@ export function TimeGrid({
   const dates = useMemo(() => generateDateRange(startDate, endDate), [startDate, endDate]);
   const timeBlocks = useMemo(() => generateTimeBlocks(startTime, endTime), [startTime, endTime]);
   
+  // Compute unique prefixes for all participants
+  const userPrefixes = useMemo(() => {
+    const names = participants
+      .map(p => p.username)
+      .filter((n): n is string => !!n && n !== 'Anonymous');
+    return getUniquePrefixes(names);
+  }, [participants]);
+
   const initialBlocks = useMemo(() => {
     const blocks = new Set<string>();
     myAvailability.forEach((interval) => {
@@ -323,14 +331,33 @@ export function TimeGrid({
               {dates.map((date) => {
                 const { count, availableUsers } = getAvailabilityForBlock(date, time);
                 const isSelected = isBlockSelected(date, time);
-                const bgColor = getAvailabilityColor(count, totalParticipants, isSelected);
+                
+                // Filter out Anonymous and sort names
+                const displayNames = availableUsers
+                  .filter(name => name && name !== 'Anonymous')
+                  .sort((a, b) => a.localeCompare(b));
+
+                const initials = displayNames.map(name => userPrefixes[name] || name.charAt(0).toUpperCase());
+                
+                // Background color based on availability (neutral if others available)
+                // If selected, we apply a specific style via classes, but the base background reflects general availability
+                const hasAvailability = count > 0;
                 
                 return (
                   <Tooltip
                     key={getBlockKey(date, time)}
                     content={
                       availableUsers.length > 0
-                        ? `${availableUsers.join(', ')} (${count} ${count === 1 ? 'person' : 'people'})`
+                        ? (
+                          <div className="text-xs">
+                            <div className="font-semibold mb-1">Available ({count}):</div>
+                            <div className="flex flex-wrap gap-1">
+                              {availableUsers.map(name => (
+                                <span key={name} className="bg-primary/20 px-1 rounded">{name}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )
                         : isSelected
                         ? 'You are available'
                         : 'No one available'
@@ -339,10 +366,28 @@ export function TimeGrid({
                     <div
                       data-date={date}
                       data-time={time}
-                      className={`border-r border-b border-border h-8 cursor-pointer transition-colors ${bgColor} ${
-                        isSelected ? 'ring-2 ring-inset ring-primary' : ''
-                      }`}
-                    />
+                      className={cn(
+                        "border-r border-b border-border h-8 cursor-pointer transition-colors relative flex items-center justify-center overflow-hidden",
+                        // Base background for availability
+                        hasAvailability ? "bg-neutral-200 dark:bg-neutral-800" : "bg-transparent",
+                        // Selection style (border/ring) - strictly visual indicator of "My" selection
+                        isSelected && "ring-2 ring-inset ring-primary z-10",
+                        // Hover effect
+                        !isSelected && !hasAvailability && "hover:bg-muted"
+                      )}
+                    >
+                      {/* Render Initials */}
+                      {initials.length > 0 && (
+                        <div className="flex items-center justify-center gap-0.5 text-[10px] font-medium text-foreground select-none w-full px-0.5">
+                          {initials.slice(0, 2).map((initial, i) => (
+                            <span key={i}>{initial}</span>
+                          ))}
+                          {initials.length > 2 && (
+                            <span className="text-muted-foreground">+{initials.length - 2}</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </Tooltip>
                 );
               })}

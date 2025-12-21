@@ -94,6 +94,11 @@ export function EventContent({ eventId }: EventContentProps) {
       } as AvailabilityView
     : availability;
   
+  // Get all existing usernames for validation
+  const existingNames = participants
+    .map(p => p.username)
+    .filter((n): n is string => !!n && n !== 'Anonymous');
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -196,7 +201,7 @@ export function EventContent({ eventId }: EventContentProps) {
             availability={availabilityData}
             myAvailability={myAvailability}
             onAvailabilityChange={handleAvailabilityChange}
-            totalParticipants={participants.length}
+            participants={participants}
             currentUserId={userId}
             isSaving={isSaving}
           />
@@ -230,6 +235,7 @@ export function EventContent({ eventId }: EventContentProps) {
         onSubmit={handleUserSubmit}
         initialUsername={username || ''}
         onCancel={isInitialized ? () => setShowUserModal(false) : undefined}
+        existingNames={existingNames}
       />
 
       {/* Event Settings Modal */}

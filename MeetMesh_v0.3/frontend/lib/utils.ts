@@ -93,98 +93,85 @@ export function convertTimezone(
 
 /**
  * Get availability color based on count
+ * @deprecated Use text-based identity instead
  */
 export function getAvailabilityColor(
   availableCount: number,
   totalParticipants: number,
   isUserAvailable: boolean
 ): string {
-  if (totalParticipants === 0) {
-    return isUserAvailable ? 'bg-primary' : 'bg-background dark:bg-card';
+  if (isUserAvailable) {
+    return 'bg-primary/20 hover:bg-primary/30';
   }
   
-  if (isUserAvailable && availableCount === 1) {
-    return 'bg-primary';
+  if (availableCount === 0) {
+    return 'bg-transparent hover:bg-muted';
   }
   
-  const ratio = availableCount / totalParticipants;
+  // Calculate opacity based on availability
+  const opacity = Math.max(0.1, Math.min(0.9, availableCount / totalParticipants));
   
-  if (ratio === 0) return 'bg-background dark:bg-card';
-  if (ratio <= 0.25) return 'bg-blue-100 dark:bg-blue-900/20';
-  if (ratio <= 0.5) return 'bg-blue-300 dark:bg-blue-800/40';
-  if (ratio <= 0.75) return 'bg-blue-500 dark:bg-blue-700/60';
-  return 'bg-blue-700 dark:bg-blue-600';
+  // Use a green scale for availability
+  if (opacity < 0.3) return 'bg-green-100 dark:bg-green-900/20';
+  if (opacity < 0.6) return 'bg-green-300 dark:bg-green-900/40';
+  return 'bg-green-500 dark:bg-green-900/60';
 }
 
 /**
- * Get opacity based on availability ratio
+ * Get unique prefixes for user names
+ * Rules:
+ * 1. Use uppercase
+ * 2. Shortest unique prefix
+ * 3. Max length 4
  */
-export function getAvailabilityOpacity(
-  availableCount: number,
-  totalParticipants: number
-): number {
-  if (totalParticipants === 0) return 0;
-  return (availableCount / totalParticipants) * 100;
+export function getUniquePrefixes(names: string[]): Record<string, string> {
+  const result: Record<string, string> = {};
+  const validNames = names.filter(n => n && n !== 'Anonymous');
+  
+  validNames.forEach(targetName => {
+    // Default to first letter if something goes wrong
+    let bestPrefix = targetName.substring(0, 1).toUpperCase();
+    
+    for (let len = 1; len <= targetName.length; len++) {
+      const prefix = targetName.substring(0, len).toUpperCase();
+      
+      // Check for conflict with ANY other name
+      const conflict = validNames.some(otherName => {
+        if (otherName === targetName) return false;
+        const otherPrefix = otherName.substring(0, len).toUpperCase();
+        return otherPrefix === prefix;
+      });
+      
+      if (!conflict || len >= 4 || len === targetName.length) {
+        bestPrefix = prefix;
+        break;
+      }
+    }
+    
+    result[targetName] = bestPrefix;
+  });
+  
+  return result;
 }
 
 /**
- * Check if a time block is in user's availability
+ * Save user to local storage
  */
-export function isBlockAvailable(
-  date: string,
-  time: string,
-  availabilityMatrix: Record<string, Record<string, number>>
-): boolean {
-  return !!availabilityMatrix[date]?.[time];
+export function saveUserToStorage(eventId: string, userId: string, username?: string) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(`meetmesh_user_${eventId}`, JSON.stringify({ userId, username }));
 }
 
 /**
- * Copy text to clipboard
+ * Get user from local storage
  */
-export async function copyToClipboard(text: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch (err) {
-    console.error('Failed to copy:', err);
-    return false;
-  }
-}
-
-/**
- * Get user data from localStorage
- */
-export function getUserFromStorage(eventId: string): { userId: string; username?: string } | null {
+export function getUserFromStorage(eventId: string): { userId: string; username: string } | null {
   if (typeof window === 'undefined') return null;
-  
-  const key = `meetmesh_user_${eventId}`;
-  const data = localStorage.getItem(key);
-  
-  if (!data) return null;
-  
+  const stored = localStorage.getItem(`meetmesh_user_${eventId}`);
+  if (!stored) return null;
   try {
-    return JSON.parse(data);
+    return JSON.parse(stored);
   } catch {
     return null;
   }
-}
-
-/**
- * Save user data to localStorage
- */
-export function saveUserToStorage(eventId: string, userId: string, username?: string): void {
-  if (typeof window === 'undefined') return;
-  
-  const key = `meetmesh_user_${eventId}`;
-  localStorage.setItem(key, JSON.stringify({ userId, username }));
-}
-
-/**
- * Clear user data from localStorage
- */
-export function clearUserFromStorage(eventId: string): void {
-  if (typeof window === 'undefined') return;
-  
-  const key = `meetmesh_user_${eventId}`;
-  localStorage.removeItem(key);
 }
