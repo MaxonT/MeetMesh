@@ -93,28 +93,24 @@ export function convertTimezone(
 
 /**
  * Get availability color based on count
- * @deprecated Use text-based identity instead
  */
 export function getAvailabilityColor(
   availableCount: number,
   totalParticipants: number,
-  isUserAvailable: boolean
+  isSelected: boolean
 ): string {
-  if (isUserAvailable) {
-    return 'bg-primary/20 hover:bg-primary/30';
+  // If no participants, check if user selected (should not happen in grid usually but safe to handle)
+  if (totalParticipants === 0) {
+    return isSelected ? 'bg-blue-500 dark:bg-blue-600' : 'bg-transparent';
   }
   
-  if (availableCount === 0) {
-    return 'bg-transparent hover:bg-muted';
-  }
+  const ratio = availableCount / totalParticipants;
   
-  // Calculate opacity based on availability
-  const opacity = Math.max(0.1, Math.min(0.9, availableCount / totalParticipants));
-  
-  // Use a green scale for availability
-  if (opacity < 0.3) return 'bg-green-100 dark:bg-green-900/20';
-  if (opacity < 0.6) return 'bg-green-300 dark:bg-green-900/40';
-  return 'bg-green-500 dark:bg-green-900/60';
+  if (ratio === 0) return 'bg-transparent';
+  if (ratio <= 0.25) return 'bg-blue-100 dark:bg-blue-900/30';
+  if (ratio <= 0.5) return 'bg-blue-300 dark:bg-blue-900/50';
+  if (ratio <= 0.75) return 'bg-blue-500 dark:bg-blue-800';
+  return 'bg-blue-700 dark:bg-blue-700';
 }
 
 /**
@@ -165,7 +161,7 @@ export function saveUserToStorage(eventId: string, userId: string, username?: st
 /**
  * Get user from local storage
  */
-export function getUserFromStorage(eventId: string): { userId: string; username: string } | null {
+export function getUserFromStorage(eventId: string): { userId: string; username?: string } | null {
   if (typeof window === 'undefined') return null;
   const stored = localStorage.getItem(`meetmesh_user_${eventId}`);
   if (!stored) return null;

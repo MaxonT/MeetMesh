@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import type { AvailabilityInterval, AvailabilityView } from '@/types';
-import { generateTimeBlocks, generateDateRange, formatDate, formatTime12Hour, getUniquePrefixes, cn } from '@/lib/utils';
+import { generateTimeBlocks, generateDateRange, formatDate, formatTime12Hour, getUniquePrefixes, getAvailabilityColor, cn } from '@/lib/utils';
 import { Tooltip } from './ui/Tooltip';
 import { Button } from './ui/Button';
 import { BLOCK_MINUTES } from '@/lib/constants';
@@ -15,7 +15,7 @@ interface TimeGridProps {
   availability: AvailabilityView | null;
   myAvailability: AvailabilityInterval[];
   onAvailabilityChange: (intervals: AvailabilityInterval[]) => void;
-  participants: { username?: string | null }[];
+  participants: { userId: string; username?: string | null }[];
   currentUserId?: string | null;
   isSaving?: boolean;
 }
@@ -32,6 +32,17 @@ export function TimeGrid({
   isSaving = false,
 }: TimeGridProps) {
   const [selectedBlocks, setSelectedBlocks] = useState<Set<string>>(new Set());
+  
+  // Create a map of userId to username for quick lookup
+  const userIdToName = useMemo(() => {
+    const map: Record<string, string> = {};
+    participants.forEach(p => {
+      if (p.userId && p.username) {
+        map[p.userId] = p.username;
+      }
+    });
+    return map;
+  }, [participants]);
   
   // Refs for drag handling
   const dragSurfaceRef = useRef<HTMLDivElement>(null);
@@ -332,58 +343,60 @@ export function TimeGrid({
                 const { count, availableUsers } = getAvailabilityForBlock(date, time);
                 const isSelected = isBlockSelected(date, time);
                 
-                // Filter out Anonymous and sort names
+                // Calculate background color using blue scale
+                const bgColor = getAvailabilityColor(count, participants.length, isSelected);
+                
+                // Dynamic text color: white for dark backgrounds, dark blue/foreground for light backgrounds
+                // Threshold matches utils.ts: > 0.5 ratio gets blue-500/700 (Dark)
+                const isDarkBg = participants.length > 0 && (count / participants.length) > 0.5;
+                const textColor = isDarkBg ? 'text-white' : 'text-blue-900 dark:text-blue-100';
+                
+                // Resolve user IDs to names, filter out Anonymous, and sort
                 const displayNames = availableUsers
+                  .map(id => userIdToName[id] || id) // Map ID to name if possible
                   .filter(name => name && name !== 'Anonymous')
                   .sort((a, b) => a.localeCompare(b));
 
                 const initials = displayNames.map(name => userPrefixes[name] || name.charAt(0).toUpperCase());
                 
-                // Background color based on availability (neutral if others available)
-                // If selected, we apply a specific style via classes, but the base background reflects general availability
-                const hasAvailability = count > 0;
-                
                 return (
                   <Tooltip
                     key={getBlockKey(date, time)}
                     content={
-                      availableUsers.length > 0
-                        ? (
-                          <div className="text-xs">
-                            <div className="font-semibold mb-1">Available ({count}):</div>
-                            <div className="flex flex-wrap gap-1">
-                              {availableUsers.map(name => (
-                                <span key={name} className="bg-primary/20 px-1 rounded">{name}</span>
-                              ))}
-                            </div>
-                          </div>
-                        )
-                        : isSelected
-                        ? 'You are available'
-                        : 'No one available'
+                      <div className="text-xs">
+                        <div className="font-semibold mb-1">Available ({count}):</div>
+                        <div className="flex flex-wrap gap-1">
+                          {displayNames.map(name => (
+                            <span key={name} className="bg-primary/20 px-1 rounded">{name}</span>
+                          ))}
+                          {count === 0 && <span className="text-muted-foreground italic">No one yet</span>}
+                        </div>
+                      </div>
                     }
                   >
                     <div
                       data-date={date}
                       data-time={time}
                       className={cn(
-                        "border-r border-b border-border h-8 cursor-pointer transition-colors relative flex items-center justify-center overflow-hidden",
-                        // Base background for availability
-                        hasAvailability ? "bg-neutral-200 dark:bg-neutral-800" : "bg-transparent",
-                        // Selection style (border/ring) - strictly visual indicator of "My" selection
+                        "border-r border-b border-border h-8 cursor-pointer transition-colors relative flex items-center justify-center overflow-hidden select-none",
+                        bgColor,
                         isSelected && "ring-2 ring-inset ring-primary z-10",
                         // Hover effect
-                        !isSelected && !hasAvailability && "hover:bg-muted"
+                        !isSelected && !count && "hover:bg-muted"
                       )}
                     >
                       {/* Render Initials */}
                       {initials.length > 0 && (
-                        <div className="flex items-center justify-center gap-0.5 text-[10px] font-medium text-foreground select-none w-full px-0.5">
+                        <div className="flex items-center justify-center gap-0.5 w-full px-0.5">
                           {initials.slice(0, 2).map((initial, i) => (
-                            <span key={i}>{initial}</span>
+                            <span key={i} className={cn("text-[10px] font-bold leading-none", textColor)}>
+                              {initial}
+                            </span>
                           ))}
                           {initials.length > 2 && (
-                            <span className="text-muted-foreground">+{initials.length - 2}</span>
+                            <span className={cn("text-[10px] font-bold leading-none opacity-80", textColor)}>
+                              +{initials.length - 2}
+                            </span>
                           )}
                         </div>
                       )}
