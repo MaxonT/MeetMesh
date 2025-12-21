@@ -27,7 +27,7 @@ export function EventContent({ eventId }: EventContentProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [viewTimezone, setViewTimezone] = useState<string>('');
   
-  const { userId, username, initializeUser, isInitialized } = useUser(eventId);
+  const { userId, username, initializeUser, updateName, isInitialized } = useUser(eventId);
   const { event, participants, availability, isLoading, error, refresh } = useEvent(eventId, viewTimezone || undefined);
   const { availability: myAvailability, saveAvailability, isSaving } = useAvailability(eventId);
   const { updateEvent } = useMeetMeshStore();
@@ -47,7 +47,13 @@ export function EventContent({ eventId }: EventContentProps) {
   }, [isInitialized, isLoading, event]);
   
   const handleUserSubmit = async (name: string) => {
-    await initializeUser(name);
+    if (isInitialized) {
+      await updateName(name);
+    } else {
+      await initializeUser(name);
+    }
+    // Refresh event data to update participants list and grid
+    refresh(viewTimezone || undefined);
     setShowUserModal(false);
   };
   
