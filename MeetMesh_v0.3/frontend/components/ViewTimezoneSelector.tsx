@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Select } from './ui/Select';
+import { TIMEZONES } from '@/lib/constants';
 
 interface ViewTimezoneSelectorProps {
   eventTimezone: string;
@@ -9,24 +10,7 @@ interface ViewTimezoneSelectorProps {
   onTimezoneChange: (timezone: string) => void;
 }
 
-// Common timezones for quick selection
-const COMMON_TIMEZONES = [
-  { value: 'America/New_York', label: 'Eastern Time (ET) UTC-5' },
-  { value: 'America/Chicago', label: 'Central Time (CT) UTC-6' },
-  { value: 'America/Denver', label: 'Mountain Time (MT) UTC-7' },
-  { value: 'America/Los_Angeles', label: 'Pacific Time (PT) UTC-8' },
-  { value: 'America/Anchorage', label: 'Alaska Time (AKT) UTC-9' },
-  { value: 'Pacific/Honolulu', label: 'Hawaii Time (HT) UTC-10' },
-  { value: 'Europe/London', label: 'London (GMT/BST) UTC+0' },
-  { value: 'Europe/Paris', label: 'Paris (CET/CEST) UTC+1' },
-  { value: 'Asia/Tokyo', label: 'Tokyo (JST) UTC+9' },
-  { value: 'Asia/Shanghai', label: 'Beijing (CST) UTC+8' },
-  { value: 'Asia/Kolkata', label: 'India (IST) UTC+5:30' },
-  { value: 'Australia/Sydney', label: 'Sydney (AEST/AEDT) UTC+11' },
-  { value: 'UTC', label: 'UTC' },
-];
-
-export function ViewTimezoneSelector({ 
+export function ViewTimezoneSelector({  
   eventTimezone, 
   currentViewTimezone, 
   onTimezoneChange 
@@ -71,7 +55,7 @@ export function ViewTimezoneSelector({
   options.push({ value: '_separator_', label: '---', disabled: true });
 
   // Add common timezones (excluding those already added)
-  COMMON_TIMEZONES.forEach((tz) => {
+  TIMEZONES.forEach((tz) => {
     if (tz.value !== eventTimezone && tz.value !== userTimezone) {
       options.push(tz);
     }
