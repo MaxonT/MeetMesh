@@ -10,20 +10,24 @@ import { Button } from './ui/Button';
 import { TIMEZONES } from '@/lib/constants';
 import { createEvent } from '@/lib/api';
 import type { CreateEventInput } from '@/types';
+import { DateTime } from 'luxon';
 
 export function CreateEventForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const [formData, setFormData] = useState<CreateEventInput>({
-    eventName: '',
-    description: '',
-    startDate: '',
-    endDate: '',
-    startTime: '09:00',
-    endTime: '17:00',
-    timezone: 'America/New_York',
+  const [formData, setFormData] = useState<CreateEventInput>(() => {
+    const now = DateTime.now();
+    return {
+      eventName: '',
+      description: '',
+      startDate: now.toISODate() || '',
+      endDate: now.plus({ days: 7 }).toISODate() || '',
+      startTime: '00:00',
+      endTime: '23:59',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York',
+    };
   });
   
   const handleChange = (
