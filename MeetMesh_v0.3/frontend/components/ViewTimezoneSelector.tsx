@@ -11,18 +11,18 @@ interface ViewTimezoneSelectorProps {
 
 // Common timezones for quick selection
 const COMMON_TIMEZONES = [
-  { value: 'America/New_York', label: 'Eastern Time (ET)' },
-  { value: 'America/Chicago', label: 'Central Time (CT)' },
-  { value: 'America/Denver', label: 'Mountain Time (MT)' },
-  { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
-  { value: 'America/Anchorage', label: 'Alaska Time (AKT)' },
-  { value: 'Pacific/Honolulu', label: 'Hawaii Time (HT)' },
-  { value: 'Europe/London', label: 'London (GMT/BST)' },
-  { value: 'Europe/Paris', label: 'Paris (CET/CEST)' },
-  { value: 'Asia/Tokyo', label: 'Tokyo (JST)' },
-  { value: 'Asia/Shanghai', label: 'Beijing (CST)' },
-  { value: 'Asia/Kolkata', label: 'India (IST)' },
-  { value: 'Australia/Sydney', label: 'Sydney (AEST/AEDT)' },
+  { value: 'America/New_York', label: 'Eastern Time (ET) UTC-5' },
+  { value: 'America/Chicago', label: 'Central Time (CT) UTC-6' },
+  { value: 'America/Denver', label: 'Mountain Time (MT) UTC-7' },
+  { value: 'America/Los_Angeles', label: 'Pacific Time (PT) UTC-8' },
+  { value: 'America/Anchorage', label: 'Alaska Time (AKT) UTC-9' },
+  { value: 'Pacific/Honolulu', label: 'Hawaii Time (HT) UTC-10' },
+  { value: 'Europe/London', label: 'London (GMT/BST) UTC+0' },
+  { value: 'Europe/Paris', label: 'Paris (CET/CEST) UTC+1' },
+  { value: 'Asia/Tokyo', label: 'Tokyo (JST) UTC+9' },
+  { value: 'Asia/Shanghai', label: 'Beijing (CST) UTC+8' },
+  { value: 'Asia/Kolkata', label: 'India (IST) UTC+5:30' },
+  { value: 'Australia/Sydney', label: 'Sydney (AEST/AEDT) UTC+11' },
   { value: 'UTC', label: 'UTC' },
 ];
 
