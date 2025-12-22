@@ -5,5 +5,5 @@
       <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
     </linearGradient>
   </defs>
-  <path d="M100 64 L100 448 L256 292 L412 448 L412 64" stroke="url(#grad_dark)" stroke-width="80" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M100 448 L100 64 L256 220 L412 64 L412 448" stroke="url(#grad_dark)" stroke-width="80" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
