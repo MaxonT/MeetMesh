@@ -7,13 +7,13 @@ export function BackgroundEffects() {
 
   useEffect(() => {
     // 生成随机粒子
-    const newParticles = Array.from({ length: 40 }, (_, i) => ({
+    const newParticles = Array.from({ length: 60 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: Math.random() * 6 + 2,
+      size: Math.random() * 8 + 4,
       delay: Math.random() * 5,
-      opacity: Math.random() * 0.5 + 0.3,
+      opacity: Math.random() * 0.4 + 0.4,
     }))
     setParticles(newParticles)
   }, [])
