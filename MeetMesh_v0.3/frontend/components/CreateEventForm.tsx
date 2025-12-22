@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from './ui/Card';
 import { Input } from './ui/Input';
@@ -17,6 +17,11 @@ export function CreateEventForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // Prefetch event page for faster transition
+  useEffect(() => {
+    router.prefetch('/event/[id]');
+  }, [router]);
+
   const [formData, setFormData] = useState<CreateEventInput>(() => {
     const now = DateTime.now();
     return {
