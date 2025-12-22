@@ -7,7 +7,7 @@ export function BackgroundEffects() {
 
   useEffect(() => {
     // 生成随机粒子
-    const newParticles = Array.from({ length: 60 }, (_, i) => ({
+    const newParticles = Array.from({ length: 45 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
