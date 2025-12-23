@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import type { AvailabilityInterval, AvailabilityView } from '@/types';
-import { generateTimeBlocks, generateDateRange, formatDate, formatTime12Hour, getAvailabilityColor } from '@/lib/utils';
+import { generateTimeBlocks, generateDateRange, formatDate, formatTime24Hour, getAvailabilityColor } from '@/lib/utils';
 import { Tooltip } from './ui/Tooltip';
 import { useMeetMeshStore } from '@/lib/store';
 import { BLOCK_MINUTES } from '@/lib/constants';
@@ -266,7 +266,7 @@ export function OptimizedTimeGrid({
                         active:scale-95
                       `}
                     >
-                      <div>{formatTime12Hour(time)}</div>
+                      <div>{formatTime24Hour(time)}</div>
                       {count > 0 && (
                         <div className="text-xs opacity-75">{count}</div>
                       )}
@@ -333,7 +333,7 @@ export function OptimizedTimeGrid({
           {visibleTimeBlocks.map((time) => (
               <React.Fragment key={time}>
                 <div className="sticky left-0 bg-background z-10 border-r border-b border-border p-2">
-                  <span className="text-xs text-muted-foreground">{formatTime12Hour(time)}</span>
+                  <span className="text-xs text-muted-foreground">{formatTime24Hour(time)}</span>
                 </div>
                 {dates.map((date) => {
                   const { count, availableUsers } = getAvailabilityForBlock(date, time);

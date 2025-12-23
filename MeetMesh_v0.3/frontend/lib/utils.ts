@@ -48,13 +48,11 @@ export function generateDateRange(startDate: string, endDate: string): string[] 
 }
 
 /**
- * Format time for display (12-hour format)
+ * Format time for display (24-hour format)
  */
-export function formatTime12Hour(time: string): string {
+export function formatTime24Hour(time: string): string {
   const [hour, minute] = time.split(':').map(Number);
-  const period = hour >= 12 ? 'PM' : 'AM';
-  const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-  return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+  return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
 }
 
 /**
