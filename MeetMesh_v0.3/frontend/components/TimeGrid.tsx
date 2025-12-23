@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import type { AvailabilityInterval, AvailabilityView } from '@/types';
-import { generateTimeBlocks, generateDateRange, formatDate, formatTime12Hour, getUniquePrefixes, getAvailabilityColor, cn } from '@/lib/utils';
+import { generateTimeBlocks, generateDateRange, formatDate, formatTime24Hour, getUniquePrefixes, getAvailabilityColor, cn } from '@/lib/utils';
 import { Tooltip } from './ui/Tooltip';
 import { Button } from './ui/Button';
 import { BLOCK_MINUTES } from '@/lib/constants';
@@ -337,7 +337,7 @@ export function TimeGrid({
           {timeBlocks.map((time) => (
             <React.Fragment key={time}>
               <div className="sticky left-0 bg-background z-10 border-r border-b border-border p-2 pointer-events-none">
-                <span className="text-xs text-muted-foreground">{formatTime12Hour(time)}</span>
+                <span className="text-xs text-muted-foreground">{formatTime24Hour(time)}</span>
               </div>
               {dates.map((date) => {
                 const { count, availableUsers } = getAvailabilityForBlock(date, time);

@@ -1,7 +1,7 @@
 import React from 'react';
 import type { AvailabilitySummary } from '@/types';
 import { Card } from './ui/Card';
-import { formatTime12Hour, formatDate } from '@/lib/utils';
+import { formatTime24Hour, formatDate } from '@/lib/utils';
 
 interface AvailabilitySummaryProps {
   summary: AvailabilitySummary;
@@ -38,7 +38,7 @@ export function AvailabilitySummaryComponent({ summary, totalParticipants }: Ava
             <ul className="space-y-1">
               {bestBlocks.slice(0, 5).map((block, idx) => (
                 <li key={idx} className="text-sm text-muted-foreground">
-                  {formatDate(block.date)} at {formatTime12Hour(block.time)} ({block.count}/{totalParticipants} people)
+                  {formatDate(block.date)} at {formatTime24Hour(block.time)} ({block.count}/{totalParticipants} people)
                 </li>
               ))}
             </ul>
@@ -54,7 +54,7 @@ export function AvailabilitySummaryComponent({ summary, totalParticipants }: Ava
             <ul className="space-y-1">
               {everyoneBlocks.slice(0, 5).map((block, idx) => (
                 <li key={idx} className="text-sm text-muted-foreground">
-                  {formatDate(block.date)} at {formatTime12Hour(block.time)}
+                  {formatDate(block.date)} at {formatTime24Hour(block.time)}
                 </li>
               ))}
             </ul>
