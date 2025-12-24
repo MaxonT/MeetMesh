@@ -310,7 +310,7 @@ export function TimeGrid({
       {/* DragSurface: Physical isolation for drag interactions */}
       <div 
         ref={dragSurfaceRef}
-        className="overflow-x-auto select-none touch-none"
+        className="overflow-auto select-none touch-none max-h-[60vh] border border-border rounded-lg relative"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -318,14 +318,14 @@ export function TimeGrid({
       >
       <div className="inline-block min-w-full">
         <div className="grid" style={{ gridTemplateColumns: `80px repeat(${dates.length}, minmax(80px, 1fr))` }}>
-          {/* Header row */}
-          <div className="sticky left-0 bg-background z-10 border-b border-r border-border p-2 pointer-events-none">
+          {/* Header row - sticky top */}
+          <div className="sticky top-0 left-0 z-30 bg-background border-b border-r border-border p-2 pointer-events-none shadow-sm">
             <span className="text-xs font-semibold text-muted-foreground">Time</span>
           </div>
           {dates.map((date) => (
             <div
               key={date}
-              className="border-b border-r border-border p-2 text-center bg-muted/30 pointer-events-none"
+              className="sticky top-0 z-20 border-b border-r border-border p-2 text-center bg-background pointer-events-none shadow-sm"
             >
               <div className="text-xs font-semibold text-foreground">
                 {formatDate(date)}
