@@ -74,6 +74,7 @@ interface EventState {
 
 const DATA_DIR = path.join(__dirname, '../data');
 const DATA_FILE = path.join(DATA_DIR, 'events.json');
+const FEEDBACK_FILE = path.join(DATA_DIR, 'feedback.json');
 
 function loadData(): Map<string, EventState> {
   try {
@@ -616,6 +617,54 @@ app.get('/events/:eventId/availability', (req: Request, res: Response) => {
     blockSizeMinutes: BLOCK_MINUTES,
     eventTimezone: state.meta.timezone,
     ...view,
+  });
+});
+
+// Feedback Interface
+app.post('/feedback', async (req: Request, res: Response) => {
+  try {
+    const { type, page } = req.body;
+    if (!['up', 'down'].includes(type)) {
+      return res.status(400).json({ message: 'Invalid feedback type' });
+    }
+
+    // Append to feedback.json
+    const entry = {
+      type,
+      page: page || 'unknown',
+      timestamp: new Date().toISOString(),
+      userAgent: req.headers['user-agent']
+    };
+
+    let feedbacks = [];
+    try {
+      if (fs.existsSync(FEEDBACK_FILE)) {
+        const content = await fs.promises.readFile(FEEDBACK_FILE, 'utf-8');
+        feedbacks = JSON.parse(content);
+      }
+    } catch (e) {
+      // ignore read error
+    }
+
+    feedbacks.push(entry);
+    await fs.promises.writeFile(FEEDBACK_FILE, JSON.stringify(feedbacks, null, 2));
+
+    res.status(201).json({ message: 'Feedback received' });
+  } catch (error) {
+    console.error('Feedback error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Donate Interface (Mock)
+app.post('/donate', (req: Request, res: Response) => {
+  // TODO: Integrate with real payment provider (Stripe/PayPal/Alipay)
+  // For now, we just log the intent and return success
+  console.log('Donation intent received:', req.body);
+  
+  res.json({ 
+    message: 'Donation initiated', 
+    redirectUrl: null // In real implementation, this would be the checkout URL
   });
 });
 

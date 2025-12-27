@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { DonateButton } from '@/components/DonateButton';
+import { FeedbackWidget } from '@/components/FeedbackWidget';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -33,7 +35,9 @@ export default function RootLayout({
       <body className={`${inter.className} font-sans antialiased`}>
         <ThemeProvider>
           <main className="min-h-screen">
+            <DonateButton />
             {children}
+            <FeedbackWidget />
           </main>
         </ThemeProvider>
       </body>
