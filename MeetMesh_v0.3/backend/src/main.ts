@@ -123,6 +123,27 @@ function saveData() {
   }
 }
 
+// 异步写入文件，避免阻塞
+async function saveDataAsync() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      await fs.promises.mkdir(DATA_DIR, { recursive: true });
+    }
+    
+    // Convert Map to serializable object
+    const serializedEvents = Array.from(events.entries()).map(([id, state]) => ({
+      id,
+      meta: state.meta,
+      users: Array.from(state.users.entries()),
+      availability: Array.from(state.availability.entries())
+    }));
+    
+    await fs.promises.writeFile(DATA_FILE, JSON.stringify(serializedEvents, null, 2));
+  } catch (error) {
+    console.error('Failed to save data async:', error);
+  }
+}
+
 const events = loadData();
 
 function parseEventDateTime(
@@ -363,7 +384,8 @@ app.post('/events', (req: Request, res: Response) => {
       availability: new Map(),
     };
     events.set(eventId, record);
-    saveData();
+    // 使用异步保存，避免阻塞请求返回
+    saveDataAsync();
     res.status(201).json(record.meta);
   } catch (error: any) {
     res.status(400).json({ message: error.message ?? 'Unable to create event' });

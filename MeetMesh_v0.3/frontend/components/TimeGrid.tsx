@@ -82,6 +82,19 @@ export function TimeGrid({
     return blocks;
   }, [myAvailability]);
 
+  const availableUsersByBlock = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    if (!availability) return map;
+
+    availability.availabilityByDate.forEach((day) => {
+      day.blocks.forEach((block) => {
+        map[`${day.date}_${block.time}`] = block.availableUsers;
+      });
+    });
+
+    return map;
+  }, [availability]);
+
   // Sync state when props change
   React.useEffect(() => {
     setSelectedBlocks(initialBlocks);
@@ -102,20 +115,8 @@ export function TimeGrid({
   };
   
   const getAvailabilityForBlock = (date: string, time: string) => {
-    const availableUsers: string[] = [];
-    let count = 0;
-    
-    if (availability?.availabilityMatrix[date]?.[time]) {
-      count = availability.availabilityMatrix[date][time];
-      
-      // Get usernames from availability blocks
-      const dateAvailability = availability.availabilityByDate.find((a) => a.date === date);
-      const block = dateAvailability?.blocks.find((b) => b.time === time);
-      if (block) {
-        availableUsers.push(...block.availableUsers);
-      }
-    }
-    
+    const count = availability?.availabilityMatrix?.[date]?.[time] ?? 0;
+    const availableUsers = availableUsersByBlock[`${date}_${time}`] ?? [];
     return { count, availableUsers };
   };
   
