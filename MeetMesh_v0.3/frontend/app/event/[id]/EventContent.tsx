@@ -32,13 +32,6 @@ export function EventContent({ eventId }: EventContentProps) {
   const { availability: myAvailability, saveAvailability, isSaving } = useAvailability(eventId);
   const { updateEvent } = useMeetMeshStore();
   
-  // Initialize viewTimezone to event timezone
-  useEffect(() => {
-    if (event && !viewTimezone) {
-      setViewTimezone(event.timezone);
-    }
-  }, [event, viewTimezone]);
-  
   // Show user modal if not initialized
   useEffect(() => {
     if (!isInitialized && !isLoading && event) {
