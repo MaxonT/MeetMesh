@@ -458,7 +458,7 @@ app.patch('/events/:eventId', (req: Request, res: Response) => {
     });
   }
   state.meta.updatedAt = new Date().toISOString();
-  saveData();
+  saveDataAsync();
   res.json(state.meta);
 });
 
@@ -467,7 +467,7 @@ app.delete('/events/:eventId', (req: Request, res: Response) => {
   if (!exists) {
     return res.status(404).json({ message: 'Event not found' });
   }
-  saveData();
+  saveDataAsync();
   res.json({ message: 'Event deleted' });
 });
 
@@ -479,7 +479,7 @@ app.post('/events/:eventId/users', (req: Request, res: Response) => {
   const userId = uuidv4();
   const user: UserRecord = { userId, username: req.body.username };
   state.users.set(userId, user);
-  saveData();
+  saveDataAsync();
   res.status(201).json(user);
 });
 
@@ -493,7 +493,7 @@ app.patch('/events/:eventId/users/:userId', (req: Request, res: Response) => {
     return res.status(404).json({ message: 'User not found' });
   }
   user.username = req.body.username ?? user.username;
-  saveData();
+  saveDataAsync();
   res.json(user);
 });
 
@@ -585,7 +585,7 @@ app.post('/events/:eventId/availability', (req: Request, res: Response) => {
       message: 'Availability saved', 
       availability: state.availability.get(userId) ?? [] 
     });
-    saveData();
+    saveDataAsync();
   } catch (error: any) {
     res.status(400).json({ message: error.message ?? 'Unable to save availability' });
   }
@@ -601,7 +601,7 @@ app.delete('/events/:eventId/availability', (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Missing userId' });
   }
   state.availability.delete(userId);
-  saveData();
+  saveDataAsync();
   res.json({ message: 'Availability cleared' });
 });
 
